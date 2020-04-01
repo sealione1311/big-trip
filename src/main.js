@@ -289,9 +289,8 @@ const createTripDay = () => {
 
 const createTripPointsList = () => {
   return (
-   `<ul class="trip-events__list">
-
-  </ul>`
+    `<ul class="trip-events__list">
+    </ul>`
   );
 };
 
@@ -335,6 +334,8 @@ const createTripPoint = () => {
 };
 
 const createTripPoints = () => {
+  renderSegment(pointsListContainer, createTripPointsList());
+  const pointsContainer = eventsContainer.querySelector(`.trip-events__list`);
   for (let i = 0; i < POINT_COUNT; i++) {
     renderSegment(pointsContainer, createTripPoint());
   }
@@ -349,8 +350,4 @@ renderSegment(eventsContainer, createSortEvents(), `afterBegin`);
 renderSegment(eventsContainer, createNewEventForm());
 renderSegment(eventsContainer, createTripDay());
 const pointsListContainer = eventsContainer.querySelector(`.day`);
-renderSegment(pointsListContainer, createTripPointsList());
-const pointsContainer = eventsContainer.querySelector(`.trip-events__list`);
 createTripPoints();
-
-
