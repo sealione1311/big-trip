@@ -1,3 +1,4 @@
+
 export const createTripCost = () => {
   return (
     `<section class="trip-main__trip-info  trip-info">
@@ -7,3 +8,4 @@ export const createTripCost = () => {
     </section>`
   );
 };
+
