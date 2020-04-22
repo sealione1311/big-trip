@@ -4,15 +4,15 @@ const MAX_NUMBER_RANDOM_DAYS = 3;
 const MAX_NUMBER_RANDOM_HOURS = 12;
 const MAX_NUMBER_RANDOM_MINUTS = 59;
 const eventActionMap = {
-  'Taxi': `to `,
-  'Bus': `to `,
-  'Train': `to `,
-  'Ship': `to `,
-  'Transport': `to `,
-  'Drive': `to `,
-  'Flight': `to `,
-  'Check-in': `in `,
-  'Sightseeing': `in `,
+  'Taxi': `to`,
+  'Bus': `to`,
+  'Train': `to`,
+  'Ship': `to`,
+  'Transport': `to`,
+  'Drive': `to`,
+  'Flight': `to`,
+  'Check-in': `in`,
+  'Sightseeing': `in`,
   'Restaurant': `in `
 };
 const MAX_OFFERS_IN_POINT = 3;

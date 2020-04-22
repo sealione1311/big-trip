@@ -1,8 +1,15 @@
-export const createTripInfo = () => {
+import {MONTHS, DESTINATION_CITIES} from "../utils/const.js";
+export const createTripInfo = (startDate, endDate) => {
+  const citiesInfo = DESTINATION_CITIES.join(`-`);
+  const startDay = new Date(startDate);
+  const firstDay = startDay.getDate();
+  const month = startDay.getMonth();
+  const endDay = new Date(endDate);
+  const lastDay = endDay.getDate();
   return (
     `<div class="trip-info__main">
-      <h1 class="trip-info__title">Amsterdam &mdash; Chamonix &mdash; Geneva</h1>
-      <p class="trip-info__dates">Mar 18&nbsp;&mdash;&nbsp;20</p>
+      <h1 class="trip-info__title">${citiesInfo}</h1>
+      <p class="trip-info__dates">${MONTHS[month]} ${firstDay}&nbsp;&mdash;&nbsp;${lastDay}</p>
     </div>`
   );
 };

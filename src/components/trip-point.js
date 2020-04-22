@@ -1,26 +1,21 @@
 import {formatTime, formatDate} from "../utils/utils.js";
 import {MAX_OFFERS_IN_POINT, eventActionMap} from "../utils/const.js";
 
-const createOffersMarkup = (offers) => {
-  if (offers !== null) {
-    return offers.slice(0, MAX_OFFERS_IN_POINT).map((offer) => {
-      return (`<li class="event__offer">
+const createOfferMarkup = (offer) => {
+  return (`<li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
       &plus;
       &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
      </li>`);
-    }).join(`\n`);
-  } return ``;
 };
 
 export const createTripPoint = ({type, destination, eventPrice, startDate, endDate, eventDuration, offers}) => {
   const action = eventActionMap[type];
-  const offersMarkup = createOffersMarkup(offers);
+  const offersMarkup = offers !== null ? offers.slice(0, MAX_OFFERS_IN_POINT).map(createOfferMarkup).join(`\n`) : ``;
   const formatedStartDate = formatDate(startDate);
   const formatedEndDate = formatDate(endDate);
   const timeStart = formatTime(startDate);
   const timeEnd = formatTime(endDate);
-
 
   return (
     `<li class="trip-events__item">
