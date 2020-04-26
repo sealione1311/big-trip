@@ -1,7 +1,10 @@
 import {DESTINATION_CITIES, eventActionMap} from "../utils/const.js";
 import {formatEventEditDate, getRandomBoolean} from "../utils/utils.js";
+import {createElement} from "../utils/dom-utils.js";
+
 const transferTypes = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];
 const activityTypes = [`Check-in`, `Sightseeing`, `Restaurant`];
+
 const createTypeMarkup = (type) => {
   return (
     `<div class="event__type-item">
@@ -41,7 +44,7 @@ const createPhotoMarkup = (photo) => {
   );
 };
 
-export const createPointEditForm = ({type, eventPrice, startDate, endDate, destination, destinationInfo, offers, destinationPhoto}) => {
+const createPointEditForm = ({type, eventPrice, startDate, endDate, destination, destinationInfo, offers, destinationPhoto}) => {
   const transferTypesMarkup = transferTypes.map(createTypeMarkup).join(`\n`);
   const activityTypesMarkup = activityTypes.map(createTypeMarkup).join(`\n`);
   const eventStart = formatEventEditDate(startDate);
@@ -130,3 +133,26 @@ export const createPointEditForm = ({type, eventPrice, startDate, endDate, desti
   </form>`
   );
 };
+
+export default class PointEdit {
+  constructor(point) {
+    this._point = point;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createPointEditForm(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

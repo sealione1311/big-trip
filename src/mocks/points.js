@@ -28,7 +28,6 @@ const generatePoint = () => {
   };
 };
 
-
 export const generatePoints = (count) => {
   return new Array(count)
     .fill(``)

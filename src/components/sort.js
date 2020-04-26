@@ -1,3 +1,5 @@
+import {createElement} from "../utils/dom-utils.js";
+
 const createSortMarkup = (sortType, isChecked) => {
   return (
     `<div class="trip-sort__item  trip-sort__item--${sortType}">
@@ -9,7 +11,8 @@ const createSortMarkup = (sortType, isChecked) => {
     </div>`
   );
 };
-export const createSortEvents = (sortTypes) => {
+
+const createSortEvents = (sortTypes) => {
   const sortMarkup = sortTypes.map((sortType, index) => createSortMarkup(sortType, index === 0)).join(`\n`);
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -19,3 +22,26 @@ export const createSortEvents = (sortTypes) => {
   </form>`
   );
 };
+
+export default class Sort {
+  constructor(sortTypes) {
+    this._sortTypes = sortTypes;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createSortEvents(this._sortTypes);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
