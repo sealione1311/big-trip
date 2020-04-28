@@ -3,6 +3,8 @@ const DESTINATION_CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Saint-Petersburg
 const MAX_NUMBER_RANDOM_DAYS = 3;
 const MAX_NUMBER_RANDOM_HOURS = 12;
 const MAX_NUMBER_RANDOM_MINUTS = 59;
+const MAX_OFFERS_IN_POINT = 3;
+
 const eventActionMap = {
   'Taxi': `to`,
   'Bus': `to`,
@@ -15,7 +17,7 @@ const eventActionMap = {
   'Sightseeing': `in`,
   'Restaurant': `in `
 };
-const MAX_OFFERS_IN_POINT = 3;
+
 const OFFERS = [
   {
     title: `Add meal`,
@@ -43,6 +45,7 @@ const OFFERS = [
     id: `lunch`,
   },
 ];
+
 const DESCRIPTION_TEXT = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,
   `Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
@@ -50,5 +53,7 @@ const DESCRIPTION_TEXT = [
   `Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat.`,
   `Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`
 ];
+
 const MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
+
 export {TYPE_EVENTS, DESTINATION_CITIES, MAX_NUMBER_RANDOM_DAYS, MAX_NUMBER_RANDOM_HOURS, MAX_NUMBER_RANDOM_MINUTS, MONTHS, eventActionMap, OFFERS, DESCRIPTION_TEXT, MAX_OFFERS_IN_POINT};
