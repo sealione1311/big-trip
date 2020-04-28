@@ -1,12 +1,12 @@
-import TripCostComponent from "./components/trip-cost.js";
-import TripInfoComponent from "./components/trip-info.js";
-import SiteMenuComponent from "./components/site-menu.js";
-import FilterComponent from "./components/filter.js";
-import SortEventsComponent from "./components/sort.js";
-import PointEditComponent from "./components/point-edit.js";
-import TripDayComponent from "./components/trip-day.js";
-import TripPointsListComponent from "./components/trip-list.js";
-import TripPointComponent from "./components/trip-point.js";
+import TripCost from "./components/trip-cost.js";
+import TripInfo from "./components/trip-info.js";
+import SiteMenu from "./components/site-menu.js";
+import Filter from "./components/filter.js";
+import SortEvents from "./components/sort.js";
+import PointEdit from "./components/point-edit.js";
+import TripDay from "./components/trip-day.js";
+import TripPointsList from "./components/trip-list.js";
+import TripPoint from "./components/trip-point.js";
 import {generatePoints} from "./mocks/points.js";
 import {render, RenderPosition} from "./utils/dom-utils.js";
 
@@ -32,29 +32,29 @@ const renderPoint = (container, point) => {
     container.replaceChild(pointComponent.getElement(), pointEditComponent.getElement());
   };
 
-  const pointComponent = new TripPointComponent(point);
+  const pointComponent = new TripPoint(point);
   const rollupButton = pointComponent.getElement().querySelector(`.event__rollup-btn`);
   rollupButton.addEventListener(`click`, onRollupButtonClick);
 
-  const pointEditComponent = new PointEditComponent(point);
+  const pointEditComponent = new PointEdit(point);
   const saveForm = pointEditComponent.getElement().querySelector(`.event__save-btn`);
   saveForm.addEventListener(`click`, onSaveFormSubmit);
 
   render(container, pointComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
-render(mainContainer, new TripCostComponent(tripCost).getElement(), RenderPosition.AFTERBEGIN);
-render(menuContainer, new SiteMenuComponent().getElement(), RenderPosition.AFTERBEGIN);
-render(filterContainer, new FilterComponent(FILTERS).getElement(), RenderPosition.BEFOREEND);
+render(mainContainer, new TripCost(tripCost).getElement(), RenderPosition.AFTERBEGIN);
+render(menuContainer, new SiteMenu().getElement(), RenderPosition.AFTERBEGIN);
+render(filterContainer, new Filter(FILTERS).getElement(), RenderPosition.BEFOREEND);
 const infoContainer = document.querySelector(`.trip-info`);
-render(infoContainer, new TripInfoComponent(sortedPoints[0], sortedPoints[sortedPoints.length - 1]).getElement(), RenderPosition.AFTERBEGIN);
-render(pointsContainer, new SortEventsComponent(SORTTYPES).getElement(), RenderPosition.AFTERBEGIN);
-render(pointsContainer, new TripDayComponent(countDays).getElement(), RenderPosition.BEFOREEND);
+render(infoContainer, new TripInfo(sortedPoints[0], sortedPoints[sortedPoints.length - 1]).getElement(), RenderPosition.AFTERBEGIN);
+render(pointsContainer, new SortEvents(SORTTYPES).getElement(), RenderPosition.AFTERBEGIN);
+render(pointsContainer, new TripDay(countDays).getElement(), RenderPosition.BEFOREEND);
 
 const days = document.querySelectorAll(`.day`);
 
 days.forEach((day) => {
-  render(day, new TripPointsListComponent().getElement(), RenderPosition.BEFOREEND);
+  render(day, new TripPointsList().getElement(), RenderPosition.BEFOREEND);
   const dayDateElement = day.querySelector(`.day__date`);
   const dayDate = new Date(dayDateElement.dateTime);
   const pointsListContainer = day.querySelector(`.trip-events__list`);

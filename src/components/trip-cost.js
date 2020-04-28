@@ -1,15 +1,5 @@
 import {createElement} from "../utils/dom-utils.js";
 
-const createTripCost = (cost) => {
-  return (
-    `<section class="trip-main__trip-info  trip-info">
-      <p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">${cost}</span>
-      </p>
-    </section>`
-  );
-};
-
 export default class TripCost {
   constructor(cost) {
     this._cost = cost;
@@ -17,7 +7,13 @@ export default class TripCost {
   }
 
   getTemplate() {
-    return createTripCost(this._cost);
+    return (
+      `<section class="trip-main__trip-info  trip-info">
+        <p class="trip-info__cost">
+          Total: &euro;&nbsp;<span class="trip-info__cost-value">${this._cost}</span>
+        </p>
+      </section>`
+    );
   }
 
   getElement() {
