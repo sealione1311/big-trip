@@ -1,9 +1,9 @@
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 
-export default class TripCost {
+export default class TripCost extends AbstractComponent {
   constructor(cost) {
+    super();
     this._cost = cost;
-    this._element = null;
   }
 
   getTemplate() {
@@ -14,18 +14,6 @@ export default class TripCost {
         </p>
       </section>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 

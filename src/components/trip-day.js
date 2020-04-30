@@ -1,11 +1,11 @@
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 import {MONTHS} from "../utils/const.js";
 import {castDateTimeFormat} from "../utils/utils.js";
 
-export default class TripDay {
+export default class TripDay extends AbstractComponent {
   constructor(dates) {
+    super();
     this._dates = dates;
-    this._element = null;
   }
 
   getTemplate() {
@@ -16,12 +16,6 @@ export default class TripDay {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
   _createTripDay(date, index) {
     const dateDay = new Date(date);
     const day = dateDay.getDate();
@@ -37,9 +31,5 @@ export default class TripDay {
           </div>
       </li>`
     );
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

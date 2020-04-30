@@ -1,9 +1,9 @@
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 
-export default class Filter {
+export default class Filter extends AbstractComponent {
   constructor(filters) {
+    super();
     this._filters = filters;
-    this._element = null;
   }
 
   getTemplate() {
@@ -15,14 +15,6 @@ export default class Filter {
     ).trim();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
   _renderFilter(filter, isChecked) {
     return (
       `<div class="trip-filters__filter">
@@ -31,9 +23,5 @@ export default class Filter {
         <label class="trip-filters__filter-label" for="filter-${filter}">${filter}</label>
       </div>`
     ).trim();
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
