@@ -1,9 +1,9 @@
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 
-export default class Sort {
+export default class Sort extends AbstractComponent {
   constructor(sortTypes) {
+    super();
     this._sortTypes = sortTypes;
-    this._element = null;
   }
 
   getTemplate() {
@@ -16,14 +16,6 @@ export default class Sort {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
   _createSortMarkup(sortType, isChecked) {
     return (
       `<div class="trip-sort__item  trip-sort__item--${sortType}">
@@ -34,9 +26,5 @@ export default class Sort {
             <path d="M2.888 4.852V9.694H5.588V4.852L7.91 5.068L4.238 0.00999987L0.548 5.068L2.888 4.852Z"/>`}
       </div>`
     );
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

@@ -1,9 +1,10 @@
 import {formatTime, formatDate} from "../utils/utils.js";
 import {MAX_OFFERS_IN_POINT, eventActionMap} from "../utils/const.js";
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 
-export default class TripPoint {
+export default class TripPoint extends AbstractComponent {
   constructor({type, destination, eventPrice, startDate, endDate, eventDuration, offers}) {
+    super();
     this._type = type;
     this._destination = destination;
     this._eventPrice = eventPrice;
@@ -55,14 +56,6 @@ export default class TripPoint {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
   _createOfferMarkup(offer) {
     return (`<li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
@@ -71,7 +64,7 @@ export default class TripPoint {
        </li>`);
   }
 
-  removeElement() {
-    this._element = null;
+  setClickHandler(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
   }
 }

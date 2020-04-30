@@ -1,12 +1,13 @@
 import {DESTINATION_CITIES, eventActionMap} from "../utils/const.js";
 import {formatEventEditDate, getRandomBoolean} from "../utils/utils.js";
-import {createElement} from "../utils/dom-utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];
 const ACTIVITY_TYPES = [`Check-in`, `Sightseeing`, `Restaurant`];
 
-export default class PointEdit {
+export default class PointEdit extends AbstractComponent {
   constructor({type, eventPrice, startDate, endDate, destination, destinationInfo, offers, destinationPhoto}) {
+    super();
     this._type = type;
     this._eventPrice = eventPrice;
     this._eventStart = formatEventEditDate(startDate);
@@ -16,7 +17,6 @@ export default class PointEdit {
     this._offers = offers;
     this._destinationPhoto = destinationPhoto;
     this._action = eventActionMap[type];
-    this._element = null;
   }
 
   getTemplate() {
@@ -102,14 +102,6 @@ export default class PointEdit {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
   _createTypeMarkup(type) {
     return (
       `<div class="event__type-item">
@@ -149,7 +141,7 @@ export default class PointEdit {
     );
   }
 
-  removeElement() {
-    this._element = null;
+  setonSaveButtonHandler(handler) {
+    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, handler);
   }
 }
