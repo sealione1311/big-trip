@@ -1,16 +1,23 @@
 import AbstractComponent from "./abstract-component.js";
 
+export const SortType = {
+  EVENT: `sort-event`,
+  TIME: `sort-time`,
+  PRICE: `sort-price`
+};
+
+const SORTTYPES = [`event`, `time`, `price`];
+
 export default class Sort extends AbstractComponent {
-  constructor(sortTypes) {
+  constructor() {
     super();
-    this._sortTypes = sortTypes;
   }
 
   getTemplate() {
     return (
       `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
       <span class="trip-sort__item  trip-sort__item--day">Day</span>
-      ${this._sortTypes.map((sortType, index) => (this._createSortMarkup(sortType, index === 0))).join(`\n`)}
+      ${SORTTYPES.map((sortType, index) => (this._createSortMarkup(sortType, index === 0))).join(`\n`)}
       <span class="trip-sort__item  trip-sort__item--offers">Offers</span>
     </form>`
     );
@@ -26,5 +33,23 @@ export default class Sort extends AbstractComponent {
             <path d="M2.888 4.852V9.694H5.588V4.852L7.91 5.068L4.238 0.00999987L0.548 5.068L2.888 4.852Z"/>`}
       </div>`
     );
+  }
+
+  setSortTypeChangeHandler(handler) {
+    this.getElement().addEventListener(`click`, (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+
+      const sortType = evt.target.id;
+
+      if (this._currentSortType === sortType) {
+        return;
+      }
+
+      this._currentSortType = sortType;
+
+      handler(this._currentSortType);
+    });
   }
 }

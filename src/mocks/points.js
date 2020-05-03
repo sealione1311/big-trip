@@ -1,4 +1,4 @@
-import {getRandomDate, getRandomEndDate, getRandomBoolean, getRandomItem, getRandomIntegerNumber, getRandomArray, getDuration} from "../utils/utils.js";
+import {getRandomDate, getRandomEndDate, getRandomBoolean, getRandomItem, getRandomIntegerNumber, getRandomArray, getDuration} from "../utils/common.js";
 import {TYPE_EVENTS, DESTINATION_CITIES, OFFERS, DESCRIPTION_TEXT} from "../utils/const.js";
 
 const getRandomPictures = () => {

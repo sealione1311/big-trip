@@ -1,4 +1,4 @@
-import {formatTime, formatDate} from "../utils/utils.js";
+import {formatTime, formatDate} from "../utils/common.js";
 import {MAX_OFFERS_IN_POINT, eventActionMap} from "../utils/const.js";
 import AbstractComponent from "./abstract-component.js";
 
