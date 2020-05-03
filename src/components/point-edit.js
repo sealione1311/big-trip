@@ -1,5 +1,5 @@
 import {DESTINATION_CITIES, eventActionMap} from "../utils/const.js";
-import {formatEventEditDate, getRandomBoolean} from "../utils/utils.js";
+import {formatEventEditDate, getRandomBoolean} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 
 const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];

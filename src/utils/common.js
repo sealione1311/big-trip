@@ -1,4 +1,4 @@
-import {MAX_NUMBER_RANDOM_DAYS, MAX_NUMBER_RANDOM_HOURS, MAX_NUMBER_RANDOM_MINUTS} from "../utils/const.js";
+import {MAX_NUMBER_RANDOM_DAYS, MAX_NUMBER_RANDOM_HOURS, MAX_NUMBER_RANDOM_MINUTS} from "./const.js";
 export const castDateTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
 };
@@ -69,3 +69,9 @@ export const getDuration = (startDate, endDate) => {
   const minutes = deltaInMinutes < 1 ? `` : `${castDateTimeFormat(deltaInMinutes % 60)}M`;
   return `${days}${hours}${minutes}`;
 };
+
+export const getDurationinMs = (startDate, endDate) => {
+  const delta = endDate.getTime() - startDate.getTime();
+  return delta;
+};
+
