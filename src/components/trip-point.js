@@ -1,4 +1,4 @@
-import {formatTime, formatDate} from "../utils/common.js";
+import {formatTime, formatDate, getFirstLetterToCapital} from "../utils/common.js";
 import {MAX_OFFERS_IN_POINT, eventActionMap} from "../utils/const.js";
 import AbstractComponent from "./abstract-component.js";
 
@@ -26,9 +26,9 @@ export default class TripPoint extends AbstractComponent {
       `<li class="trip-events__item">
         <div class="event">
           <div class="event__type">
-            <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type.toLowerCase()}.png" alt="Event type icon">
+            <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${this._type} ${this._action} ${this._destination}</h3>
+          <h3 class="event__title">${getFirstLetterToCapital(this._type)} ${this._action} ${this._destination.name}</h3>
 
           <div class="event__schedule">
             <p class="event__time">

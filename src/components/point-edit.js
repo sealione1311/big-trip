@@ -1,22 +1,29 @@
-import {DESTINATION_CITIES, eventActionMap} from "../utils/const.js";
-import {formatEventEditDate, getRandomBoolean} from "../utils/common.js";
-import AbstractComponent from "./abstract-component.js";
+import {DESTINATION_CITIES, eventActionMap, OFFERS} from "../utils/const.js";
+import {formatEventEditDate, getRandomBoolean, getFirstLetterToCapital} from "../utils/common.js";
+import {destinations} from "../mocks/points.js";
+import AbstractSmartComponent from "./abstract-smart-component.js";
 
 const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];
 const ACTIVITY_TYPES = [`Check-in`, `Sightseeing`, `Restaurant`];
 
-export default class PointEdit extends AbstractComponent {
-  constructor({type, eventPrice, startDate, endDate, destination, destinationInfo, offers, destinationPhoto}) {
+export default class PointEdit extends AbstractSmartComponent {
+  constructor(point) {
+    const {type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
+    this._point = point;
     this._type = type;
     this._eventPrice = eventPrice;
     this._eventStart = formatEventEditDate(startDate);
     this._eventEnd = formatEventEditDate(endDate);
-    this._destination = destination;
-    this._destinationInfo = destinationInfo;
+    this._destination = destination.name;
+    this._destinationInfo = destination.description;
     this._offers = offers;
-    this._destinationPhoto = destinationPhoto;
+    this._destinationPhoto = destination.pictures;
     this._action = eventActionMap[type];
+    this._isFavorite = isFavorite;
+    this._saveButtonHandler = null;
+    this._favoriteButtonHandler = null;
+    this.subscribeOnEvents();
   }
 
   getTemplate() {
@@ -26,7 +33,7 @@ export default class PointEdit extends AbstractComponent {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type.toLowerCase()}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -45,7 +52,7 @@ export default class PointEdit extends AbstractComponent {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-          ${this._type} ${this._action}
+          ${getFirstLetterToCapital(this._type)} ${this._action}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text"
            name="event-destination" value="${this._destination}" list="destination-list-1">
@@ -76,6 +83,7 @@ export default class PointEdit extends AbstractComponent {
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Cancel</button>
+        ${this._createFavoriteButton()}
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
@@ -141,7 +149,77 @@ export default class PointEdit extends AbstractComponent {
     );
   }
 
+  _createFavoriteButton() {
+    return (
+      `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : ``}>
+      <label class="event__favorite-btn" for="event-favorite-1">
+        <span class="visually-hidden">Add to favorite</span>
+        <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+          <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+        </svg>
+      </label>`);
+  }
+  recoveryListeners() {
+    this.setonSaveButtonHandler(this._saveButtonHandler);
+    this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
+    this.subscribeOnEvents();
+  }
+
+  rerender() {
+    super.rerender();
+  }
+
+  subscribeOnEvents() {
+    const element = this.getElement();
+
+    const eventTypeList = element.querySelector(`.event__type-list`);
+
+    eventTypeList.addEventListener(`change`, (evt) => {
+      evt.preventDefault();
+      this._type = evt.target.value;
+      this._offers = OFFERS[this._type];
+      this._action = eventActionMap[this._type];
+      this.rerender();
+    });
+
+    element.querySelector(`.event__favorite-checkbox`).addEventListener(`click`, () => {
+      this._isFavorite = !this._isFavorite;
+      this.rerender();
+    });
+
+    const destinationList = element.querySelector(`#event-destination-1`);
+
+    destinationList.addEventListener(`change`, (evt) => {
+      evt.preventDefault();
+
+      const index = destinations.findIndex((destination) => destination.name === evt.target.value);
+      if (index === -1) {
+        return;
+      }
+
+      this._destinationInfo = destinations[index].description;
+      this._destination = destinations[index].name;
+      this.rerender();
+    });
+  }
+
   setonSaveButtonHandler(handler) {
     this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, handler);
+    this._saveButtonHandler = handler;
+  }
+
+  setFavoriteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-checkbox`).addEventListener(`click`, handler);
+    this._favoriteButtonHandler = handler;
+  }
+
+  reset() {
+    const point = this._point;
+    this._destination = point.destination.name;
+    this._destinationInfo = point.destination.description;
+    this._type = point.type;
+    this._offers = point.offers;
+    this._action = eventActionMap[point.type];
+    this.rerender();
   }
 }
