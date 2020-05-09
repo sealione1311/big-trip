@@ -11,20 +11,32 @@ const getRandomPictures = () => {
   return photosArray;
 };
 
+const getDestinations = () => {
+  return DESTINATION_CITIES.map((city) => {
+    return {
+      "description": getRandomArray(DESCRIPTION_TEXT),
+      "name": city,
+      "pictures": getRandomPictures(),
+    };
+  });
+};
+
+export const destinations = getDestinations();
+
 const generatePoint = () => {
+  const type = getRandomItem(TYPE_EVENTS);
   const startDate = getRandomDate();
   const endDate = getRandomEndDate(startDate);
   const eventDuration = getDuration(startDate, endDate);
   return {
-    type: getRandomItem(TYPE_EVENTS),
-    destination: getRandomItem(DESTINATION_CITIES),
+    type,
+    destination: getRandomItem(destinations),
     eventPrice: getRandomIntegerNumber(10, 200),
     startDate,
     endDate,
     eventDuration,
-    offers: getRandomBoolean() ? null : getRandomArray(OFFERS),
-    destinationInfo: getRandomArray(DESCRIPTION_TEXT),
-    destinationPhoto: getRandomPictures(),
+    offers: getRandomBoolean() ? null : getRandomArray(OFFERS[type]),
+    isFavorite: false,
   };
 };
 

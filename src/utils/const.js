@@ -1,4 +1,4 @@
-const TYPE_EVENTS = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`];
+const TYPE_EVENTS = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`];
 const DESTINATION_CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Saint-Petersburg`];
 const MAX_NUMBER_RANDOM_DAYS = 3;
 const MAX_NUMBER_RANDOM_HOURS = 12;
@@ -6,45 +6,178 @@ const MAX_NUMBER_RANDOM_MINUTS = 59;
 const MAX_OFFERS_IN_POINT = 3;
 
 const eventActionMap = {
-  'Taxi': `to`,
-  'Bus': `to`,
-  'Train': `to`,
-  'Ship': `to`,
-  'Transport': `to`,
-  'Drive': `to`,
-  'Flight': `to`,
-  'Check-in': `in`,
-  'Sightseeing': `in`,
-  'Restaurant': `in `
+  'taxi': `to`,
+  'bus': `to`,
+  'train': `to`,
+  'ship': `to`,
+  'transport': `to`,
+  'drive': `to`,
+  'flight': `to`,
+  'check-in': `in`,
+  'sightseeing': `in`,
+  'restaurant': `in `
 };
 
-const OFFERS = [
-  {
-    title: `Add meal`,
+const OFFERS = {
+  "taxi": [{
+    id: `uber`,
+    title: `Order Uber`,
     price: 20,
-    id: `meal`,
-  },
-  {
-    title: `Add luggage`,
-    price: 30,
-    id: `luggage`,
-  },
-  {
-    title: `Switch to comfort`,
-    price: 100,
+  }, {
     id: `comfort`,
-  },
-  {
-    title: `Book tickets`,
-    price: 50,
-    id: `tickets`,
-  },
-  {
-    title: `Lunch in city`,
-    price: 40,
+    title: `Switch to comfort class`,
+    price: 100,
+  }],
+  "bus": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+  "train": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+  "ship": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+  "transport": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Chid seats`,
+    price: 5
+  }, {
+    id: `train`,
+    title: `Travel by train`,
+    price: 40
+  }],
+  "drive": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }],
+  "flight": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+  "check-in": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+  "sightseeing": [{
     id: `lunch`,
-  },
-];
+    title: `Lunch in city`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }, {
+    id: `train`,
+    title: `Travel by train`,
+    price: 40
+  }],
+  "restaurant": [{
+    id: `luggage`,
+    title: `Add luggage`,
+    price: 30
+  }, {
+    id: `comfort`,
+    title: `Switch to comfort class`,
+    price: 100
+  }, {
+    id: `meal`,
+    title: `Add meal`,
+    price: 15
+  }, {
+    id: `seats`,
+    title: `Choose seats`,
+    price: 5
+  }],
+};
 
 const DESCRIPTION_TEXT = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,

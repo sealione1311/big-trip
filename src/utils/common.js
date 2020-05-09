@@ -75,3 +75,7 @@ export const getDurationinMs = (startDate, endDate) => {
   return delta;
 };
 
+export const getFirstLetterToCapital = (string) => {
+  return string[0].toUpperCase() + string.substring(1);
+};
+
