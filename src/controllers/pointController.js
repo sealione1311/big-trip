@@ -27,7 +27,7 @@ export default class PointController {
       document.addEventListener(`keydown`, this._onEscKeyDown);
     });
 
-    this._pointEdit.setonSaveButtonHandler((evt) => {
+    this._pointEdit.setSaveButtonHandler((evt) => {
       evt.preventDefault();
       this._replaceEditToPoint();
       document.removeEventListener(`keydown`, this._onEscKeyDown);

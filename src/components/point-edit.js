@@ -1,7 +1,9 @@
 import {DESTINATION_CITIES, eventActionMap, OFFERS} from "../utils/const.js";
-import {formatEventEditDate, getRandomBoolean, getFirstLetterToCapital} from "../utils/common.js";
+import {formatEventEditDate, getRandomBoolean, capitalize} from "../utils/common.js";
 import {destinations} from "../mocks/points.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];
 const ACTIVITY_TYPES = [`Check-in`, `Sightseeing`, `Restaurant`];
@@ -24,6 +26,8 @@ export default class PointEdit extends AbstractSmartComponent {
     this._saveButtonHandler = null;
     this._favoriteButtonHandler = null;
     this.subscribeOnEvents();
+    this._flatpickr = null;
+    this._applyFlatpickr();
   }
 
   getTemplate() {
@@ -52,7 +56,7 @@ export default class PointEdit extends AbstractSmartComponent {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-          ${getFirstLetterToCapital(this._type)} ${this._action}
+          ${capitalize(this._type)} ${this._action}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text"
            name="event-destination" value="${this._destination}" list="destination-list-1">
@@ -159,14 +163,36 @@ export default class PointEdit extends AbstractSmartComponent {
         </svg>
       </label>`);
   }
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const dateStartInput = this.getElement().querySelector(`#event-start-time-1`);
+    const dateEndInput = this.getElement().querySelector(`#event-end-time-1`);
+
+    const setFormateFormDate = (input) => {
+      this._flatpickr = flatpickr(input, {
+        allowInput: true,
+        enableTime: true,
+        dateFormat: `d-m-y H:i`,
+      });
+    };
+    setFormateFormDate(dateStartInput);
+    setFormateFormDate(dateEndInput);
+  }
+
+
   recoveryListeners() {
-    this.setonSaveButtonHandler(this._saveButtonHandler);
+    this.setSaveButtonHandler(this._saveButtonHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
     this.subscribeOnEvents();
   }
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   subscribeOnEvents() {
@@ -203,7 +229,7 @@ export default class PointEdit extends AbstractSmartComponent {
     });
   }
 
-  setonSaveButtonHandler(handler) {
+  setSaveButtonHandler(handler) {
     this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, handler);
     this._saveButtonHandler = handler;
   }
