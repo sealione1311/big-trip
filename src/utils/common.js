@@ -1,4 +1,5 @@
 import {MAX_NUMBER_RANDOM_DAYS, MAX_NUMBER_RANDOM_HOURS, MAX_NUMBER_RANDOM_MINUTS} from "./const.js";
+import moment from "moment";
 export const castDateTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
 };
@@ -8,24 +9,14 @@ export const getRandomBoolean = () => {
 };
 
 export const formatTime = (date) => {
-  const hours = castDateTimeFormat(date.getHours());
-  const minutes = castDateTimeFormat(date.getMinutes());
-  return `${hours}:${minutes}`;
+  return moment(date).format(`HH:mm`);
 };
 
 export const formatDate = (date) => {
-  const day = castDateTimeFormat(date.getDate());
-  const month = castDateTimeFormat(date.getMonth());
-  const year = date.getFullYear();
-  return `${year}-${month}-${day}`;
+  return moment(date).format(`YYYY-MM-DD`);
 };
 export const formatEventEditDate = (date) => {
-  const hours = castDateTimeFormat(date.getHours());
-  const minutes = castDateTimeFormat(date.getMinutes());
-  const day = castDateTimeFormat(date.getDate());
-  const month = castDateTimeFormat(date.getMonth());
-  const year = date.getFullYear().toString().slice(2);
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
+  return moment(date).format(`DD-MM-YY HH:mm`);
 };
 
 export const getRandomIntegerNumber = (min, max) => {
@@ -60,7 +51,7 @@ export const getRandomEndDate = (startDate) => {
 };
 
 export const getDuration = (startDate, endDate) => {
-  const delta = endDate.getTime() - startDate.getTime();
+  const delta = moment(endDate) - moment(startDate);
   const deltaInDays = Math.floor(delta / (1000 * 60 * 60 * 24));
   const deltaInHours = Math.floor((delta / (1000 * 60 * 60)));
   const deltaInMinutes = delta / (1000 * 60);
@@ -71,11 +62,11 @@ export const getDuration = (startDate, endDate) => {
 };
 
 export const getDurationinMs = (startDate, endDate) => {
-  const delta = endDate.getTime() - startDate.getTime();
+  const delta = moment(endDate) - moment(startDate);
   return delta;
 };
 
-export const getFirstLetterToCapital = (string) => {
+export const capitalize = (string) => {
   return string[0].toUpperCase() + string.substring(1);
 };
 

@@ -45,9 +45,9 @@ export default class TripController {
       const day = document.querySelector(`.day`);
       const pointsListContainer = day.querySelector(`.trip-events__list`);
       for (let point of sortedEvents) {
-        const pointController = new PointController(pointsListContainer, this._onDataChange);
+        const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange);
         pointController.render(point);
-        this._showedPointControllers.push(pointController);
+        this._observer.push(pointController);
       }
     };
 
