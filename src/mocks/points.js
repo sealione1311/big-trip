@@ -29,6 +29,7 @@ const generatePoint = () => {
   const endDate = getRandomEndDate(startDate);
   const eventDuration = getDuration(startDate, endDate);
   return {
+    id: String(Math.random()),
     type,
     destination: getRandomItem(destinations),
     eventPrice: getRandomIntegerNumber(10, 200),

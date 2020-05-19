@@ -1,4 +1,4 @@
-import AbstractComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstract-smart-component.js";
 
 export const SortType = {
   EVENT: `sort-event`,
@@ -8,16 +8,17 @@ export const SortType = {
 
 const SORTTYPES = [`event`, `time`, `price`];
 
-export default class Sort extends AbstractComponent {
+export default class Sort extends AbstractSmartComponent {
   constructor() {
     super();
+    this._currentSortType = SortType.EVENT;
   }
 
   getTemplate() {
     return (
       `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
       <span class="trip-sort__item  trip-sort__item--day">Day</span>
-      ${SORTTYPES.map((sortType, index) => (this._createSortMarkup(sortType, index === 0))).join(`\n`)}
+      ${SORTTYPES.map((sortType) => (this._createSortMarkup(sortType, this._currentSortType === `sort-${sortType}`))).join(`\n`)}
       <span class="trip-sort__item  trip-sort__item--offers">Offers</span>
     </form>`
     );
@@ -33,6 +34,18 @@ export default class Sort extends AbstractComponent {
             <path d="M2.888 4.852V9.694H5.588V4.852L7.91 5.068L4.238 0.00999987L0.548 5.068L2.888 4.852Z"/>`}
       </div>`
     );
+  }
+  rerender() {
+    super.rerender();
+  }
+
+  recoveryListeners() {
+    this.setSortTypeChangeHandler(this._sortTypeChangeHandler);
+  }
+
+  reset() {
+    this._currentSortType = SortType.EVENT;
+    this.rerender();
   }
 
   setSortTypeChangeHandler(handler) {
@@ -50,6 +63,7 @@ export default class Sort extends AbstractComponent {
       this._currentSortType = sortType;
 
       handler(this._currentSortType);
+      this._sortTypeChangeHandler = handler;
     });
   }
 }

@@ -1,12 +1,14 @@
 import {DESTINATION_CITIES, eventActionMap, OFFERS} from "../utils/const.js";
-import {formatEventEditDate, getRandomBoolean, capitalize} from "../utils/common.js";
+import {formatEventEditDate, getRandomBoolean, capitalize, getDuration} from "../utils/common.js";
 import {destinations} from "../mocks/points.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import flatpickr from "flatpickr";
+import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
 
-const TRANSFER_TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`];
-const ACTIVITY_TYPES = [`Check-in`, `Sightseeing`, `Restaurant`];
+const TRANSFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
+const ACTIVITY_TYPES = [`check-in`, `sightseeing`, `restaurant`];
+
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point) {
@@ -17,7 +19,7 @@ export default class PointEdit extends AbstractSmartComponent {
     this._eventPrice = eventPrice;
     this._eventStart = formatEventEditDate(startDate);
     this._eventEnd = formatEventEditDate(endDate);
-    this._destination = destination.name;
+    this._destination = destination === `` ? `` : destination.name;
     this._destinationInfo = destination.description;
     this._offers = offers;
     this._destinationPhoto = destination.pictures;
@@ -28,6 +30,7 @@ export default class PointEdit extends AbstractSmartComponent {
     this.subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
+    this._deleteButtonClickHandler = null;
   }
 
   getTemplate() {
@@ -44,12 +47,13 @@ export default class PointEdit extends AbstractSmartComponent {
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
-              ${TRANSFER_TYPES.map(this._createTypeMarkup).join(`\n`)}
+
+              ${TRANSFER_TYPES.map((type) => this._createTypeMarkup(type, this._type)).join(`\n`)}
             </fieldset>
 
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Activity</legend>
-              ${ACTIVITY_TYPES.map(this._createTypeMarkup).join(`\n`)}
+              ${ACTIVITY_TYPES.map((type) => this._createTypeMarkup(type, this._type)).join(`\n`)}
             </fieldset>
           </div>
         </div>
@@ -97,30 +101,33 @@ export default class PointEdit extends AbstractSmartComponent {
           ${this._offers !== null ? this._offers.map(this._createOfferMarkup).join(`\n`) : ``}
           </div>
         </section>
-
-        <section class="event__section  event__section--destination">
+        ${this._destination === `` ? `` :
+        `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">${this._destinationInfo}</p>
 
           <div class="event__photos-container">
             <div class="event__photos-tape">
-              ${this._destinationPhoto.map(this._createPhotoMarkup).join(`\n`)}
+              ${this._destinationPhoto === `` ? `` : this._destinationPhoto.map(this._createPhotoMarkup).join(`\n`)}
 
             </div>
           </div>
         </section>
-      </section>
+      </section>`}
     </form>`
     );
   }
 
-  _createTypeMarkup(type) {
+  _createTypeMarkup(type, currentType) {
+
+    const isChecked = (type === currentType) ? `checked` : ``;
+
     return (
       `<div class="event__type-item">
-        <input id="event-type-${type.toLowerCase()}-1" class="event__type-input  visually-hidden"
-         type="radio" name="event-type" value="${type.toLowerCase()}">
-        <label class="event__type-label  event__type-label--${type.toLowerCase()}"
-         for="event-type-${type.toLowerCase()}-1">${type}</label>
+        <input id="event-type-${type}-1" class="event__type-input  visually-hidden"
+         type="radio" name="event-type" value="${type}"${isChecked}>
+        <label class="event__type-label  event__type-label--${type}"
+         for="event-type-${type}-1">${type}</label>
       </div>`
     );
   }
@@ -187,7 +194,9 @@ export default class PointEdit extends AbstractSmartComponent {
   recoveryListeners() {
     this.setSaveButtonHandler(this._saveButtonHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
     this.subscribeOnEvents();
+
   }
 
   rerender() {
@@ -195,10 +204,18 @@ export default class PointEdit extends AbstractSmartComponent {
     this._applyFlatpickr();
   }
 
+  setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+
+    this._deleteButtonClickHandler = handler;
+  }
+
   subscribeOnEvents() {
     const element = this.getElement();
-
     const eventTypeList = element.querySelector(`.event__type-list`);
+    const destinationsListInput = element.querySelector(`#event-destination-1`);
+    const eventPriceInput = element.querySelector(`#event-price-1`);
 
     eventTypeList.addEventListener(`change`, (evt) => {
       evt.preventDefault();
@@ -213,9 +230,7 @@ export default class PointEdit extends AbstractSmartComponent {
       this.rerender();
     });
 
-    const destinationList = element.querySelector(`#event-destination-1`);
-
-    destinationList.addEventListener(`change`, (evt) => {
+    destinationsListInput.addEventListener(`change`, (evt) => {
       evt.preventDefault();
 
       const index = destinations.findIndex((destination) => destination.name === evt.target.value);
@@ -225,7 +240,20 @@ export default class PointEdit extends AbstractSmartComponent {
 
       this._destinationInfo = destinations[index].description;
       this._destination = destinations[index].name;
+      this._destinationPhoto = destinations[index].pictures;
       this.rerender();
+    });
+
+    destinationsListInput.addEventListener(`input`, () => {
+      const isValueCurrent = DESTINATION_CITIES.includes(destinationsListInput.value);
+      if (!isValueCurrent) {
+        destinationsListInput.value = ``;
+      }
+    });
+
+    eventPriceInput.addEventListener(`keyup`, () => {
+      eventPriceInput.value = eventPriceInput.value.replace(/[^\d]/g, ``);
+      this._eventPrice = encode(eventPriceInput.value);
     });
   }
 
@@ -238,6 +266,57 @@ export default class PointEdit extends AbstractSmartComponent {
     this.getElement().querySelector(`.event__favorite-checkbox`).addEventListener(`click`, handler);
     this._favoriteButtonHandler = handler;
   }
+
+
+  getData() {
+
+    const form = this.getElement();
+    const formData = new FormData(form);
+    let offers = Array.from(form.querySelectorAll(`.event__offer-selector`));
+    offers = offers.map((offer) => {
+      return {
+        id: offer.querySelector(`[name^= "event-offer-"]`).name.slice(12),
+        title: offer.querySelector(`.event__offer-title`).textContent,
+        price: offer.querySelector(`.event__offer-price`).textContent,
+      };
+    });
+
+    return this._parseFormData(formData, offers);
+
+  }
+
+  _parseFormData(formData, offers) {
+    const type = formData.get(`event-type`);
+    const startDate = flatpickr.parseDate(formData.get(`event-start-time`), `d/m/y H:i`);
+    const endDate = flatpickr.parseDate(formData.get(`event-end-time`), `d/m/y H:i`);
+    let photos = Array.from(document.querySelectorAll(`.event__photo`));
+    photos = photos.map((photo) => photo.src);
+    const descriptionText = document.querySelector(`.event__destination-description`).textContent;
+    return {
+      type,
+      startDate,
+      endDate,
+      destination: {
+        name: formData.get(`event-destination`),
+        description: descriptionText,
+        pictures: photos,
+      },
+      offers,
+      eventPrice: formData.get(`event-price`),
+      eventDuration: getDuration(startDate, endDate),
+      isFavorite: formData.get(`event-favorite`)
+    };
+  }
+
+  removeElement() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    super.removeElement();
+  }
+
 
   reset() {
     const point = this._point;

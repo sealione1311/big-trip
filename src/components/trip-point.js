@@ -10,7 +10,7 @@ export default class TripPoint extends AbstractComponent {
     this._eventPrice = eventPrice;
     this._startDate = startDate;
     this._endDate = endDate;
-    this._eventDuration = eventDuration;
+    this._eventDuration = eventDuration !== `` ? eventDuration : ``;
     this._offers = offers;
     this._action = eventActionMap[type];
     this._offersMarkup = this._offers !== null ? this._offers.slice(0, MAX_OFFERS_IN_POINT).map(this._createOfferMarkup).join(`\n`) : ``;
