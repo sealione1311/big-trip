@@ -8,11 +8,11 @@ export default class PointsModel {
     this._dataChangeHandlers = [];
   }
 
-  getPoints() {
+  getFiltredPoints() {
     return getPointsByFilter(this._points, this._activeFilterType);
   }
 
-  getPointsAll() {
+  getPoints() {
     return this._points;
   }
 

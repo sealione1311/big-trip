@@ -44,9 +44,7 @@ export default class FilterController {
   }
 
   reset() {
-    this._activeFilterType = FilterType.EVERYTHING;
-    this._pointsModel.setFilter(FilterType.EVERYTHING);
+    this._onFilterChange(FilterType.EVERYTHING);
     this.render();
-
   }
 }

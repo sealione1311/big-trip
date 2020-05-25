@@ -179,11 +179,21 @@ const OFFERS = {
   }],
 };
 
+export const TRANSFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
+export const ACTIVITY_TYPES = [`check-in`, `sightseeing`, `restaurant`];
+
 export const FilterType = {
   EVERYTHING: `everything`,
   FUTURE: `future`,
   PAST: `past`,
 };
+
+export const MenuItem = {
+  STATS: `Stats`,
+  TABLE: `Table`
+};
+
+export const HIDDEN_CLASS = `visually-hidden`;
 
 const DESCRIPTION_TEXT = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,

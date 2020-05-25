@@ -1,11 +1,5 @@
 import AbstractComponent from "./abstract-component.js";
 
-export const MenuItem = {
-  NEW_TASK: `control__new-task`,
-  STATISTICS: `Stats`,
-  TASKS: `Table`,
-};
-
 export default class SiteMenu extends AbstractComponent {
 
   getTemplate() {
@@ -16,21 +10,17 @@ export default class SiteMenu extends AbstractComponent {
       </nav>`
     );
   }
-  setActiveItem(menuItem) {
-    const item = this.getElement().querySelector(`.${menuItem}`);
 
-    if (item) {
-      item.checked = true;
-    }
-  }
-
-  setOnChange(handler) {
+  setActiveMenuItemChangeHandler(handler) {
     this.getElement().addEventListener(`click`, (evt) => {
       if (evt.target.tagName !== `A`) {
         return;
       }
 
-      const menuItem = evt.target.value;
+      document.querySelector(`.trip-tabs__btn--active`).classList.remove(`trip-tabs__btn--active`);
+
+      evt.target.classList.add(`trip-tabs__btn--active`);
+      const menuItem = evt.target.textContent;
 
       handler(menuItem);
     });

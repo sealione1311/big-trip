@@ -15,8 +15,7 @@ export default class Filter extends AbstractComponent {
     ).trim();
   }
 
-  _renderFilter(filter, isChecked) {
-    const {name} = filter;
+  _renderFilter({name}, isChecked) {
     return (
       `<div class="trip-filters__filter">
         <input id="filter-${name}" class="trip-filters__filter-input  visually-hidden"

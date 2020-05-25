@@ -74,6 +74,14 @@ export default class PointController {
     }
   }
 
+  hide() {
+    this._container.classList.add(HIDDEN_CLASS);
+  }
+
+  show() {
+    this._container.classList.remove(HIDDEN_CLASS);
+  }
+
   destroy() {
     remove(this._pointEdit);
     remove(this._tripPoint);

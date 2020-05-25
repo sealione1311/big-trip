@@ -60,6 +60,16 @@ export const getDuration = (startDate, endDate) => {
 
 };
 
+export const getChartDuration = (diff) => {
+  const delta = moment.duration(diff);
+  const days = delta.days() < 1 ? `` : `${castDateTimeFormat(delta.days())}D `;
+  const hours = delta.hours() < 1 ? `` : `${castDateTimeFormat(delta.hours())}H `;
+  const minutes = delta.minutes() < 1 ? `` : `${castDateTimeFormat(delta.minutes())}M`;
+
+  return `${days}${hours}${minutes}`;
+
+};
+
 export const getDurationInMs = (startDate, endDate) => {
   const delta = moment.duration(moment(endDate).diff(moment(startDate)));
   return delta;
@@ -82,3 +92,6 @@ export const isPast = (startDate, dateNow) => {
   return startDatePoint < now;
 };
 
+export const getDateSortedPoints = (points) => {
+  return points.sort((a, b) => a.startDate - b.startDate).map((point)=> point.startDate.toDateString());
+};

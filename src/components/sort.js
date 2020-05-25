@@ -35,9 +35,6 @@ export default class Sort extends AbstractSmartComponent {
       </div>`
     );
   }
-  rerender() {
-    super.rerender();
-  }
 
   recoveryListeners() {
     this.setSortTypeChangeHandler(this._sortTypeChangeHandler);
@@ -45,7 +42,7 @@ export default class Sort extends AbstractSmartComponent {
 
   reset() {
     this._currentSortType = SortType.EVENT;
-    this.rerender();
+    super.rerender();
   }
 
   setSortTypeChangeHandler(handler) {
