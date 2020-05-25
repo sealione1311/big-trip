@@ -37,7 +37,7 @@ export const getRandomArray = (array) => {
 
 export const getRandomDate = () => {
   const date = new Date();
-  const deltaDays = getRandomIntegerNumber(0, MAX_NUMBER_RANDOM_DAYS);
+  const deltaDays = getRandomIntegerNumber(-1, MAX_NUMBER_RANDOM_DAYS);
   const deltaHours = getRandomIntegerNumber(0, MAX_NUMBER_RANDOM_HOURS);
   const deltaMinutes = getRandomIntegerNumber(0, MAX_NUMBER_RANDOM_MINUTS);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + deltaDays, date.getHours() + deltaHours, date.getMinutes() + deltaMinutes);
@@ -51,22 +51,34 @@ export const getRandomEndDate = (startDate) => {
 };
 
 export const getDuration = (startDate, endDate) => {
-  const delta = moment(endDate) - moment(startDate);
-  const deltaInDays = Math.floor(delta / (1000 * 60 * 60 * 24));
-  const deltaInHours = Math.floor((delta / (1000 * 60 * 60)));
-  const deltaInMinutes = delta / (1000 * 60);
-  const days = deltaInDays < 1 ? `` : `${castDateTimeFormat(deltaInDays)}D `;
-  const hours = deltaInHours < 1 ? `` : `${castDateTimeFormat(deltaInHours % 24)}H `;
-  const minutes = deltaInMinutes < 1 ? `` : `${castDateTimeFormat(deltaInMinutes % 60)}M`;
+  const delta = moment.duration(moment(endDate).diff(moment(startDate)));
+  const days = delta.days() < 1 ? `` : `${castDateTimeFormat(delta.days())}D `;
+  const hours = delta.hours() < 1 ? `` : `${castDateTimeFormat(delta.hours())}H `;
+  const minutes = delta.minutes() < 1 ? `` : `${castDateTimeFormat(delta.minutes())}M`;
+
   return `${days}${hours}${minutes}`;
+
 };
 
-export const getDurationinMs = (startDate, endDate) => {
-  const delta = moment(endDate) - moment(startDate);
+export const getDurationInMs = (startDate, endDate) => {
+  const delta = moment.duration(moment(endDate).diff(moment(startDate)));
   return delta;
+
 };
 
 export const capitalize = (string) => {
   return string[0].toUpperCase() + string.substring(1);
+};
+
+export const isFuture = (startDate, dateNow) => {
+  const startDatePoint = moment(startDate);
+  const now = moment(dateNow);
+  return startDatePoint > now;
+};
+
+export const isPast = (startDate, dateNow) => {
+  const startDatePoint = moment(startDate);
+  const now = moment(dateNow);
+  return startDatePoint < now;
 };
 
