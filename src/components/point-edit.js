@@ -1,19 +1,17 @@
-import {DESTINATION_CITIES, eventActionMap, OFFERS} from "../utils/const.js";
+import {DESTINATION_CITIES, eventActionMap, OFFERS, TRANSFER_TYPES, ACTIVITY_TYPES} from "../utils/const.js";
 import {formatEventEditDate, getRandomBoolean, capitalize, getDuration} from "../utils/common.js";
 import {destinations} from "../mocks/points.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import {Mode} from "../controllers/pointController";
 import flatpickr from "flatpickr";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
 
-const TRANSFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
-const ACTIVITY_TYPES = [`check-in`, `sightseeing`, `restaurant`];
-
-
 export default class PointEdit extends AbstractSmartComponent {
-  constructor(point) {
+  constructor(point, mode) {
     const {type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
+    this._mode = mode;
     this._point = point;
     this._type = type;
     this._eventPrice = eventPrice;
@@ -47,10 +45,8 @@ export default class PointEdit extends AbstractSmartComponent {
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
-
               ${TRANSFER_TYPES.map((type) => this._createTypeMarkup(type, this._type)).join(`\n`)}
             </fieldset>
-
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Activity</legend>
               ${ACTIVITY_TYPES.map((type) => this._createTypeMarkup(type, this._type)).join(`\n`)}
@@ -90,7 +86,7 @@ export default class PointEdit extends AbstractSmartComponent {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Cancel</button>
+        <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `Delete` : `Cancel`}</button>
         ${this._createFavoriteButton()}
       </header>
       <section class="event__details">
@@ -196,7 +192,6 @@ export default class PointEdit extends AbstractSmartComponent {
     this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
     this.subscribeOnEvents();
-
   }
 
   rerender() {
@@ -267,7 +262,6 @@ export default class PointEdit extends AbstractSmartComponent {
     this._favoriteButtonHandler = handler;
   }
 
-
   getData() {
 
     const form = this.getElement();
@@ -282,7 +276,6 @@ export default class PointEdit extends AbstractSmartComponent {
     });
 
     return this._parseFormData(formData, offers);
-
   }
 
   _parseFormData(formData, offers) {
@@ -313,10 +306,8 @@ export default class PointEdit extends AbstractSmartComponent {
       this._flatpickr.destroy();
       this._flatpickr = null;
     }
-
     super.removeElement();
   }
-
 
   reset() {
     const point = this._point;

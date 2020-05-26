@@ -2,6 +2,7 @@ import PointEdit from "../components/point-edit.js";
 import TripPoint from "../components/trip-point.js";
 import {render, replace, remove} from "../utils/dom-utils.js";
 
+
 export const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
