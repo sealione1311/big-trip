@@ -2,14 +2,16 @@ import {DESTINATION_CITIES, eventActionMap, OFFERS, TRANSFER_TYPES, ACTIVITY_TYP
 import {formatEventEditDate, getRandomBoolean, capitalize, getDuration} from "../utils/common.js";
 import {destinations} from "../mocks/points.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import {Mode} from "../controllers/pointController";
 import flatpickr from "flatpickr";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
 
 export default class PointEdit extends AbstractSmartComponent {
-  constructor(point) {
+  constructor(point, mode) {
     const {type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
+    this._mode = mode;
     this._point = point;
     this._type = type;
     this._eventPrice = eventPrice;
@@ -84,7 +86,7 @@ export default class PointEdit extends AbstractSmartComponent {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `Delete` : `Cancel`}</button>
         ${this._createFavoriteButton()}
       </header>
       <section class="event__details">

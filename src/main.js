@@ -14,17 +14,14 @@ const POINT_COUNT = 20;
 const mainContainer = document.querySelector(`.trip-main`);
 const filterContainer = mainContainer.querySelector(`.trip-controls`);
 const menuContainer = filterContainer.querySelector(`h2`);
-const pageBodyContainer = document.querySelector(`main .page-body__container`);
+const pageBodyContainer = document.querySelector(`.page-main .page-body__container`);
 const pointsContainer = document.querySelector(`.trip-events`);
 const newEventButton = document.querySelector(`.trip-main__event-add-btn`);
 
 const points = generatePoints(POINT_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
-const tripCost = points.reduce((total, point) => total + point.eventPrice, 0);
-
-
-render(mainContainer, new TripCost(tripCost), RenderPosition.AFTERBEGIN);
+render(mainContainer, new TripCost(points), RenderPosition.AFTERBEGIN);
 const siteComponent = new SiteMenu();
 render(menuContainer, siteComponent, RenderPosition.AFTEREND);
 
