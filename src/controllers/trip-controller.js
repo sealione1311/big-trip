@@ -1,4 +1,4 @@
-import PointController, {Mode as PointControllerMode, EmptyPoint} from "../controllers/pointController.js";
+import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point-controller.js";
 import NoPoints from "../components/no-points.js";
 import TripDay from "../components/trip-day.js";
 import Sort, {SortType} from "../components/sort.js";
@@ -7,7 +7,7 @@ import {getDurationInMs, getDateSortedPoints} from "../utils/common.js";
 import {HIDDEN_CLASS} from "../utils/const.js";
 
 export default class TripController {
-  constructor(pointsModel, pointsContainer) {
+  constructor(pointsModel, pointsContainer, api) {
     this._pointsModel = pointsModel;
     this._container = pointsContainer;
     this._events = [];
@@ -19,18 +19,20 @@ export default class TripController {
     this._onFilterChange = this._onFilterChange.bind(this);
     this._pointsModel.setFilterChangeHandler(this._onFilterChange);
     this._creatingPoint = null;
+    this._api = api;
   }
 
   render() {
     const points = this._pointsModel.getPoints();
-
     const renderSortedPoints = (sortedEvents) => {
       render(this._container, new TripDay(null));
       const day = document.querySelector(`.day`);
       const pointsListContainer = day.querySelector(`.trip-events__list`);
       for (let point of sortedEvents) {
-        const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange);
-        pointController.render(point, PointControllerMode.DEFAULT);
+
+        const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange, this._pointsModel);
+
+        pointController.render(point, PointControllerMode.DEFAULT, this._pointsModel);
         this._observer.push(pointController);
       }
     };
@@ -88,7 +90,7 @@ export default class TripController {
     const pointsListContainer = day.querySelector(`.trip-events__list`);
     for (let point of points) {
       if (point.startDate.getDate() === dayDate.getDate()) {
-        const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange);
+        const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange, this._pointsModel);
         pointController.render(point, PointControllerMode.DEFAULT);
         this._observer.push(pointController);
       }
@@ -129,7 +131,7 @@ export default class TripController {
     return sortedEvents;
   }
 
-  _onDataChange(pointController, oldData, newData) {
+  _onDataChange(pointController, oldData, newData, isFavoriteUpdate = false) {
     const newEventButton = document.querySelector(`.trip-main__event-add-btn`);
 
     if (oldData === EmptyPoint) {
@@ -150,12 +152,19 @@ export default class TripController {
       this._pointsModel.removePoint(oldData.id);
       this._updatePoints();
     } else {
-      const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
 
-      if (isSuccess) {
-        pointController.render(newData, PointControllerMode.DEFAULT);
-        this._updatePoints();
-      }
+      this._api.updatePoint(oldData.id, newData)
+        .then((updetedPoint) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, updetedPoint);
+
+          if (isSuccess) {
+            if (isFavoriteUpdate) {
+              return;
+            }
+            pointController.render(updetedPoint, PointControllerMode.DEFAULT);
+            this._updatePoints();
+          }
+        });
     }
   }
 

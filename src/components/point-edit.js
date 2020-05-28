@@ -1,16 +1,20 @@
-import {DESTINATION_CITIES, eventActionMap, OFFERS, TRANSFER_TYPES, ACTIVITY_TYPES} from "../utils/const.js";
-import {formatEventEditDate, getRandomBoolean, capitalize, getDuration} from "../utils/common.js";
-import {destinations} from "../mocks/points.js";
+import {eventActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../utils/const.js";
+import {formatEventEditDate, capitalize} from "../utils/common.js";
+
 import AbstractSmartComponent from "./abstract-smart-component.js";
-import {Mode} from "../controllers/pointController";
+import {Mode} from "../controllers/point-controller.js";
 import flatpickr from "flatpickr";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
 
 export default class PointEdit extends AbstractSmartComponent {
-  constructor(point, mode) {
-    const {type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
+  constructor(point, mode, pointsModel) {
+
+    const {id, type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
+    this._id = id;
+    this._pointsModel = pointsModel;
+    this._offersByType = pointsModel.getOffersbyType(type);
     this._mode = mode;
     this._point = point;
     this._type = type;
@@ -19,7 +23,7 @@ export default class PointEdit extends AbstractSmartComponent {
     this._eventEnd = formatEventEditDate(endDate);
     this._destination = destination === `` ? `` : destination.name;
     this._destinationInfo = destination.description;
-    this._offers = offers;
+    this._chekedOffers = offers;
     this._destinationPhoto = destination.pictures;
     this._action = eventActionMap[type];
     this._isFavorite = isFavorite;
@@ -29,9 +33,13 @@ export default class PointEdit extends AbstractSmartComponent {
     this._flatpickr = null;
     this._applyFlatpickr();
     this._deleteButtonClickHandler = null;
+
+
   }
 
   getTemplate() {
+
+    const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -59,9 +67,9 @@ export default class PointEdit extends AbstractSmartComponent {
           ${capitalize(this._type)} ${this._action}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-           name="event-destination" value="${this._destination}" list="destination-list-1">
+           name="event-destination" value="${this._destination}" list="destination-list-1" required>
           <datalist id="destination-list-1">
-          ${DESTINATION_CITIES.map(this._createdDestinationMarkup).join(`\n`)}
+          ${destinationsCities.map(this._createdDestinationMarkup).join(`\n`)}
           </datalist>
         </div>
 
@@ -69,12 +77,12 @@ export default class PointEdit extends AbstractSmartComponent {
           <label class="visually-hidden" for="event-start-time-1">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._eventStart}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._eventStart}" required>
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._eventEnd}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._eventEnd}" required>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -82,7 +90,7 @@ export default class PointEdit extends AbstractSmartComponent {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._eventPrice}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._eventPrice}" required>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -94,7 +102,8 @@ export default class PointEdit extends AbstractSmartComponent {
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-          ${this._offers !== null ? this._offers.map(this._createOfferMarkup).join(`\n`) : ``}
+
+          ${this._offersByType !== null ? this._offersByType.map((offer) => this._createOfferMarkup(offer, this._chekedOffers)).join(`\n`) : ``}
           </div>
         </section>
         ${this._destination === `` ? `` :
@@ -112,6 +121,7 @@ export default class PointEdit extends AbstractSmartComponent {
       </section>`}
     </form>`
     );
+
   }
 
   _createTypeMarkup(type, currentType) {
@@ -123,7 +133,7 @@ export default class PointEdit extends AbstractSmartComponent {
         <input id="event-type-${type}-1" class="event__type-input  visually-hidden"
          type="radio" name="event-type" value="${type}"${isChecked}>
         <label class="event__type-label  event__type-label--${type}"
-         for="event-type-${type}-1">${type}</label>
+         for="event-type-${type}-1">${capitalize(type)}</label>
       </div>`
     );
   }
@@ -134,17 +144,17 @@ export default class PointEdit extends AbstractSmartComponent {
     );
   }
 
-  _createOfferMarkup(offer) {
-
+  _createOfferMarkup(offerByType, checkedOffers) {
+    const isChecked = checkedOffers.some((offer) => offer.title === offerByType.title);
     return (
       `<div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden"
-        id="event-offer-${offer.id}-1"
-        type="checkbox" name="event-offer-${offer.id}" ${getRandomBoolean() ? `checked` : ``}>
-        <label class="event__offer-label" for="event-offer-${offer.id}-1">
-        <span class="event__offer-title">${offer.title}</span>
+        id="event-offer-${offerByType.title}-1"
+        type="checkbox" name="event-offer" value="${offerByType.title}" ${isChecked ? `checked` : ``} >
+        <label class="event__offer-label" for="event-offer-${offerByType.title}-1">
+        <span class="event__offer-title">${offerByType.title}</span>
         &plus;
-        &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
+        &euro;&nbsp;<span class="event__offer-price">${offerByType.price}</span>
       </label>
     </div>`
     );
@@ -152,7 +162,7 @@ export default class PointEdit extends AbstractSmartComponent {
 
   _createPhotoMarkup(photo) {
     return (
-      `<img class="event__photo" src="${photo}" alt="Event photo">`
+      `<img class="event__photo" src="${photo.src}" alt="Event photo">`
     );
   }
 
@@ -207,15 +217,20 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   subscribeOnEvents() {
+    const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
+    const deststinations = this._pointsModel.getDestinations();
     const element = this.getElement();
     const eventTypeList = element.querySelector(`.event__type-list`);
     const destinationsListInput = element.querySelector(`#event-destination-1`);
     const eventPriceInput = element.querySelector(`#event-price-1`);
+    const validityStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
+    const validityEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
+
 
     eventTypeList.addEventListener(`change`, (evt) => {
       evt.preventDefault();
       this._type = evt.target.value;
-      this._offers = OFFERS[this._type];
+      this._offersByType = this._pointsModel.getOffersbyType(this._type);
       this._action = eventActionMap[this._type];
       this.rerender();
     });
@@ -228,19 +243,20 @@ export default class PointEdit extends AbstractSmartComponent {
     destinationsListInput.addEventListener(`change`, (evt) => {
       evt.preventDefault();
 
-      const index = destinations.findIndex((destination) => destination.name === evt.target.value);
+      const index = deststinations.findIndex((destination) => destination.name === evt.target.value);
       if (index === -1) {
         return;
       }
 
-      this._destinationInfo = destinations[index].description;
-      this._destination = destinations[index].name;
-      this._destinationPhoto = destinations[index].pictures;
+      this._destinationInfo = deststinations[index].description;
+      this._destination = deststinations[index].name;
+      this._destinationPhoto = deststinations[index].pictures;
+
       this.rerender();
     });
 
     destinationsListInput.addEventListener(`input`, () => {
-      const isValueCurrent = DESTINATION_CITIES.includes(destinationsListInput.value);
+      const isValueCurrent = destinationsCities.includes(destinationsListInput.value);
       if (!isValueCurrent) {
         destinationsListInput.value = ``;
       }
@@ -249,6 +265,27 @@ export default class PointEdit extends AbstractSmartComponent {
     eventPriceInput.addEventListener(`keyup`, () => {
       eventPriceInput.value = eventPriceInput.value.replace(/[^\d]/g, ``);
       this._eventPrice = encode(eventPriceInput.value);
+    });
+
+    validityEndTimeInput.addEventListener(`change`, () => {
+      if (validityEndTimeInput) {
+        if (validityEndTimeInput.value < validityStartTimeInput.value) {
+          validityEndTimeInput.setCustomValidity(`Дата прибития меньше даты начала`);
+          validityEndTimeInput.reportValidity();
+        } else {
+          validityEndTimeInput.setCustomValidity(``);
+        }
+      }
+    });
+    validityStartTimeInput.addEventListener(`change`, () => {
+      if (validityStartTimeInput) {
+        if (validityEndTimeInput.value < validityStartTimeInput.value) {
+          validityStartTimeInput.setCustomValidity(`Дата прибытия меньше даты начала`);
+          validityStartTimeInput.reportValidity();
+        } else {
+          validityStartTimeInput.setCustomValidity(``);
+        }
+      }
     });
   }
 
@@ -263,42 +300,12 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   getData() {
-
     const form = this.getElement();
-    const formData = new FormData(form);
-    let offers = Array.from(form.querySelectorAll(`.event__offer-selector`));
-    offers = offers.map((offer) => {
-      return {
-        id: offer.querySelector(`[name^= "event-offer-"]`).name.slice(12),
-        title: offer.querySelector(`.event__offer-title`).textContent,
-        price: offer.querySelector(`.event__offer-price`).textContent,
-      };
-    });
-
-    return this._parseFormData(formData, offers);
+    return new FormData(form);
   }
 
-  _parseFormData(formData, offers) {
-    const type = formData.get(`event-type`);
-    const startDate = flatpickr.parseDate(formData.get(`event-start-time`), `d/m/y H:i`);
-    const endDate = flatpickr.parseDate(formData.get(`event-end-time`), `d/m/y H:i`);
-    let photos = Array.from(document.querySelectorAll(`.event__photo`));
-    photos = photos.map((photo) => photo.src);
-    const descriptionText = document.querySelector(`.event__destination-description`).textContent;
-    return {
-      type,
-      startDate,
-      endDate,
-      destination: {
-        name: formData.get(`event-destination`),
-        description: descriptionText,
-        pictures: photos,
-      },
-      offers,
-      eventPrice: formData.get(`event-price`),
-      eventDuration: getDuration(startDate, endDate),
-      isFavorite: formData.get(`event-favorite`)
-    };
+  getId() {
+    return this._id;
   }
 
   removeElement() {

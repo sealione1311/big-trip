@@ -95,3 +95,15 @@ export const isPast = (startDate, dateNow) => {
 export const getDateSortedPoints = (points) => {
   return points.sort((a, b) => a.startDate - b.startDate).map((point)=> point.startDate.toDateString());
 };
+
+export const getRandomPictures = () => {
+  const photosArray = [];
+  const count = getRandomIntegerNumber(3, 5);
+
+  for (let i = 0; i < count; i++) {
+    photosArray.push(`http://picsum.photos/248/152?r=${Math.random()}`);
+  }
+  return photosArray;
+};
+
+

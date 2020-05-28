@@ -8,7 +8,7 @@ export default class TripCost extends AbstractComponent {
   }
 
   getTemplate() {
-    const tripCost = this._points.reduce((total, point) => total + point.eventPrice, 0);
+    const tripCost = this._calcTotalPrice(this._points);
     return (
       `<section class="trip-main__trip-info  trip-info">
         <p class="trip-info__cost">
@@ -16,6 +16,12 @@ export default class TripCost extends AbstractComponent {
         </p>
       </section>`
     );
+  }
+
+  _calcTotalPrice(points) {
+    return points
+    .reduce(((total, pointsItems) => (total += pointsItems[`offers`]
+      .reduce(((itemsPrice, pointsItem) => (itemsPrice += pointsItem.price)), 0))), 0);
   }
 }
 
