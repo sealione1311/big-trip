@@ -6,6 +6,8 @@ export default class PointsModel {
     this._activeFilterType = FilterType.EVERYTHING;
     this._filterChangeHandlers = [];
     this._dataChangeHandlers = [];
+    this._destinations = [];
+    this._offers = [];
   }
 
   getFiltredPoints() {
@@ -19,13 +21,32 @@ export default class PointsModel {
   setPoints(points) {
     this._points = Array.from(points);
     this._callHandlers(this._dataChangeHandlers);
+  }
 
+  getOffers() {
+    return this._offers;
+  }
+
+  getOffersbyType(type) {
+    return ((this._offers.filter((offer) => offer.type === type)).map((it) => it.offers))[0];
+  }
+
+  setOffers(offers) {
+    this._offers = Array.from(offers);
   }
 
   setFilter(filterType) {
 
     this._activeFilterType = filterType;
     this._callHandlers(this._filterChangeHandlers);
+  }
+
+  setDestinations(destinations) {
+    this._destinations = destinations ? Array.from(destinations) : [];
+  }
+
+  getDestinations() {
+    return this._destinations;
   }
 
 

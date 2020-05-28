@@ -47,6 +47,7 @@ const typeSymbols = new Map([
 
 
 const createChartTemplate = (ctx, data, formatter, title) => {
+  debugger
   return new Chart(ctx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
@@ -60,7 +61,9 @@ const createChartTemplate = (ctx, data, formatter, title) => {
         }),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: BAR_THICKNESS,
+        minBarLength: MIN_BAR_LENGTH,
       }]
     },
     options: {
@@ -98,7 +101,6 @@ const createChartTemplate = (ctx, data, formatter, title) => {
             display: false,
             drawBorder: false
           },
-          barThickness: BAR_THICKNESS,
         }],
         xAxes: [{
           ticks: {
@@ -109,7 +111,6 @@ const createChartTemplate = (ctx, data, formatter, title) => {
             display: false,
             drawBorder: false
           },
-          minBarLength: MIN_BAR_LENGTH,
         }],
       },
       legend: {
