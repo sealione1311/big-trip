@@ -30,10 +30,8 @@ export default class TripController {
       render(this._container, new TripDay(null));
       const day = document.querySelector(`.day`);
       const pointsListContainer = day.querySelector(`.trip-events__list`);
-      for (let point of sortedEvents) {
-
+      for (const point of sortedEvents) {
         const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange, this._pointsModel);
-
         pointController.render(point, PointControllerMode.DEFAULT, this._pointsModel);
         this._observer.push(pointController);
       }
@@ -141,7 +139,7 @@ export default class TripController {
     const dayDateElement = day.querySelector(`.day__date`);
     const dayDate = new Date(dayDateElement.dateTime);
     const pointsListContainer = day.querySelector(`.trip-events__list`);
-    for (let point of points) {
+    for (const point of points) {
       if (point.startDate.getDate() === dayDate.getDate()) {
         const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange, this._pointsModel);
         pointController.render(point, PointControllerMode.DEFAULT);
