@@ -1,10 +1,12 @@
-import {eventActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../utils/const.js";
-import {formatEventEditDate, capitalize} from "../utils/common.js";
-import AbstractSmartComponent from "./abstract-smart-component.js";
-import {Mode} from "../controllers/point-controller.js";
+import AbstractSmartComponent from "../abstract-smart-component.js";
 import flatpickr from "flatpickr";
+import {eventActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../../utils/const.js";
+import {formatEventEditDate, capitalize} from "../../utils/common.js";
+import {Mode} from "../../controllers/point-controller.js";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
+
+const TEXT_ERROR_END_TIME_VALIDITY = `Дата прибития меньше даты начала`;
 
 const DefaultData = {
   DELETE_BUTTON_TEXT: `Delete`,
@@ -13,7 +15,6 @@ const DefaultData = {
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode, pointsModel) {
-
     const {id, type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
     this._id = id;
@@ -38,16 +39,10 @@ export default class PointEdit extends AbstractSmartComponent {
     this._flatpickr = null;
     this._applyFlatpickr();
     this._deleteButtonClickHandler = null;
-
-
-
   }
 
   getTemplate() {
-
-
     const deleteButtonText = this._externalData.DELETE_BUTTON_TEXT;
-
     const saveButtonText = this._externalData.SAVE_BUTTON_TEXT;
     const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
 
@@ -106,7 +101,7 @@ export default class PointEdit extends AbstractSmartComponent {
 
         <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
         <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `${deleteButtonText}` : `Cancel`}</button>
-        ${this._createFavoriteButton()}
+        ${this._mode !== Mode.ADDING ? this._createFavoriteButton() : ``}
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
@@ -135,6 +130,136 @@ export default class PointEdit extends AbstractSmartComponent {
 
   }
 
+  getData() {
+    const form = this.getElement();
+    return new FormData(form);
+  }
+
+  getId() {
+    return this._id;
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.rerender();
+  }
+
+  setDisableForm(isDisable = false) {
+    if (isDisable) {
+      this.getElement().querySelectorAll(`fieldset, input, button`)
+        .forEach((formElement) => formElement.setAttribute(`disabled`, `true`));
+    } else {
+      document.querySelectorAll(`fieldset, button`)
+        .forEach((formElement) => formElement.setAttribute(`disabled`, `false`));
+    }
+  }
+
+  subscribeOnEvents() {
+    const destinationsCities = (this._pointsModel.getDestinations()).map((destinaition) => destinaition.name);
+    const deststinations = this._pointsModel.getDestinations();
+    const element = this.getElement();
+    const eventTypeList = element.querySelector(`.event__type-list`);
+    const destinationsListInput = element.querySelector(`#event-destination-1`);
+    const eventPriceInput = element.querySelector(`#event-price-1`);
+    const validityStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
+    const validityEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+
+
+    eventTypeList.addEventListener(`change`, (evt) => {
+      evt.preventDefault();
+      this._type = evt.target.value;
+      this._offersByType = this._pointsModel.getOffersbyType(this._type);
+      this._action = eventActionMap[this._type];
+      this.rerender();
+    });
+
+    if (favoriteButton) {
+      favoriteButton.addEventListener(`click`, () => {
+        this._isFavorite = !this._isFavorite;
+        this.rerender();
+      });
+    }
+
+    destinationsListInput.addEventListener(`change`, (evt) => {
+      evt.preventDefault();
+
+      const index = deststinations.findIndex((destination) => destination.name === evt.target.value);
+      if (index === -1) {
+        return;
+      }
+
+      this._destinationInfo = deststinations[index].description;
+      this._destination = deststinations[index].name;
+      this._destinationPhoto = deststinations[index].pictures;
+      this.rerender();
+    });
+
+    destinationsListInput.addEventListener(`input`, () => {
+      const isValueCurrent = destinationsCities.includes(destinationsListInput.value);
+      if (!isValueCurrent) {
+        destinationsListInput.value = ``;
+      }
+    });
+
+    eventPriceInput.addEventListener(`keyup`, () => {
+      eventPriceInput.value = eventPriceInput.value.replace(/[^\d]/g, ``);
+      this._eventPrice = encode(eventPriceInput.value);
+    });
+
+    validityEndTimeInput.addEventListener(`change`, () => {
+      if (validityEndTimeInput) {
+        if (validityEndTimeInput.value < validityStartTimeInput.value) {
+          validityEndTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          validityEndTimeInput.reportValidity();
+        } else {
+          validityEndTimeInput.setCustomValidity(``);
+        }
+      }
+    });
+
+    validityStartTimeInput.addEventListener(`change`, () => {
+      if (validityStartTimeInput) {
+        if (validityEndTimeInput.value < validityStartTimeInput.value) {
+          validityStartTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          validityStartTimeInput.reportValidity();
+        } else {
+          validityStartTimeInput.setCustomValidity(``);
+        }
+      }
+    });
+  }
+
+  recoveryListeners() {
+    this.setSaveButtonHandler(this._saveButtonHandler);
+    this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.subscribeOnEvents();
+  }
+
+  rerender() {
+    super.rerender();
+    this._applyFlatpickr();
+  }
+
+  removeElement() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+    super.removeElement();
+  }
+
+  reset() {
+    const point = this._point;
+    this._destination = point.destination.name;
+    this._destinationInfo = point.destination.description;
+    this._offers = point.offers;
+    this._type = point.type;
+    this._action = eventActionMap[point.type];
+    this.rerender();
+  }
+
   _createTypeMarkup(type, currentType) {
 
     const isChecked = (type === currentType) ? `checked` : ``;
@@ -159,7 +284,6 @@ export default class PointEdit extends AbstractSmartComponent {
     const getCheckedStatus = () => {
       if (checkedOffers !== null) {
         return checkedOffers.some((offer) => offer.title === offerByType.title);
-
       }
       return false;
     };
@@ -186,11 +310,6 @@ export default class PointEdit extends AbstractSmartComponent {
     );
   }
 
-  setData(data) {
-    this._externalData = Object.assign({}, DefaultData, data);
-    this.rerender();
-  }
-
   _createFavoriteButton() {
     return (
       `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : ``}>
@@ -201,6 +320,7 @@ export default class PointEdit extends AbstractSmartComponent {
         </svg>
       </label>`);
   }
+
   _applyFlatpickr() {
     if (this._flatpickr) {
       this._flatpickr.destroy();
@@ -217,101 +337,14 @@ export default class PointEdit extends AbstractSmartComponent {
         dateFormat: `d-m-y H:i`,
       });
     };
+
     setFormateFormDate(dateStartInput);
     setFormateFormDate(dateEndInput);
   }
 
-
-  recoveryListeners() {
-    this.setSaveButtonHandler(this._saveButtonHandler);
-    this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
-    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
-    this.subscribeOnEvents();
-  }
-
-  rerender() {
-    super.rerender();
-    this._applyFlatpickr();
-  }
-
   setDeleteButtonClickHandler(handler) {
-    this.getElement().querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, handler);
-
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, handler);
     this._deleteButtonClickHandler = handler;
-  }
-
-  subscribeOnEvents() {
-    const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
-    const deststinations = this._pointsModel.getDestinations();
-    const element = this.getElement();
-    const eventTypeList = element.querySelector(`.event__type-list`);
-    const destinationsListInput = element.querySelector(`#event-destination-1`);
-    const eventPriceInput = element.querySelector(`#event-price-1`);
-    const validityStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
-    const validityEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
-
-
-    eventTypeList.addEventListener(`change`, (evt) => {
-      evt.preventDefault();
-      this._type = evt.target.value;
-      this._offersByType = this._pointsModel.getOffersbyType(this._type);
-      this._action = eventActionMap[this._type];
-      this.rerender();
-    });
-
-    element.querySelector(`.event__favorite-checkbox`).addEventListener(`click`, () => {
-      this._isFavorite = !this._isFavorite;
-      this.rerender();
-    });
-
-    destinationsListInput.addEventListener(`change`, (evt) => {
-      evt.preventDefault();
-
-      const index = deststinations.findIndex((destination) => destination.name === evt.target.value);
-      if (index === -1) {
-        return;
-      }
-
-      this._destinationInfo = deststinations[index].description;
-      this._destination = deststinations[index].name;
-      this._destinationPhoto = deststinations[index].pictures;
-
-      this.rerender();
-    });
-
-    destinationsListInput.addEventListener(`input`, () => {
-      const isValueCurrent = destinationsCities.includes(destinationsListInput.value);
-      if (!isValueCurrent) {
-        destinationsListInput.value = ``;
-      }
-    });
-
-    eventPriceInput.addEventListener(`keyup`, () => {
-      eventPriceInput.value = eventPriceInput.value.replace(/[^\d]/g, ``);
-      this._eventPrice = encode(eventPriceInput.value);
-    });
-
-    validityEndTimeInput.addEventListener(`change`, () => {
-      if (validityEndTimeInput) {
-        if (validityEndTimeInput.value < validityStartTimeInput.value) {
-          validityEndTimeInput.setCustomValidity(`Дата прибития меньше даты начала`);
-          validityEndTimeInput.reportValidity();
-        } else {
-          validityEndTimeInput.setCustomValidity(``);
-        }
-      }
-    });
-    validityStartTimeInput.addEventListener(`change`, () => {
-      if (validityStartTimeInput) {
-        if (validityEndTimeInput.value < validityStartTimeInput.value) {
-          validityStartTimeInput.setCustomValidity(`Дата прибытия меньше даты начала`);
-          validityStartTimeInput.reportValidity();
-        } else {
-          validityStartTimeInput.setCustomValidity(``);
-        }
-      }
-    });
   }
 
   setSaveButtonHandler(handler) {
@@ -320,34 +353,10 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   setFavoriteButtonClickHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-checkbox`).addEventListener(`click`, handler);
-    this._favoriteButtonHandler = handler;
-  }
-
-  getData() {
-    const form = this.getElement();
-    return new FormData(form);
-  }
-
-  getId() {
-    return this._id;
-  }
-
-  removeElement() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (favoriteButton) {
+      favoriteButton.addEventListener(`click`, handler);
     }
-    super.removeElement();
-  }
-
-  reset() {
-    const point = this._point;
-    this._destination = point.destination.name;
-    this._destinationInfo = point.destination.description;
-    this._type = point.type;
-    this._offers = point.offers;
-    this._action = eventActionMap[point.type];
-    this.rerender();
+    this._favoriteButtonHandler = handler;
   }
 }

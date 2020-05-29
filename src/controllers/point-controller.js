@@ -1,11 +1,11 @@
-import PointEdit from "../components/point-edit.js";
-import TripPoint from "../components/trip-point.js";
-import {render, replace, remove} from "../utils/dom-utils.js";
-import PointModel from "../models/point-model.js";
 import flatpickr from "flatpickr";
+import PointEdit from "../components/point/point-edit.js";
+import PointModel from "../models/point-model.js";
+import TripPoint from "../components/point/trip-point.js";
+import {render, replace, remove} from "../utils/dom-utils.js";
+import {Key} from "../utils/const.js";
 
 const SHAKE_ANIMATION_TIMEOUT = 600;
-
 
 export const Mode = {
   DEFAULT: `default`,
@@ -24,27 +24,6 @@ export const EmptyPoint = {
   isFavorite: false,
 };
 
-const parseFormData = (formData, allOffers, allDestinations) => {
-  const type = formData.get(`event-type`);
-  const startDate = flatpickr.parseDate(formData.get(`event-start-time`), `d/m/y H:i`);
-  const endDate = flatpickr.parseDate(formData.get(`event-end-time`), `d/m/y H:i`);
-  const offersByType = allOffers.find((offer) => offer.type === type).offers;
-  const offersFromForm = formData.getAll(`event-offer`);
-  const checkedOffers = offersByType.filter((offer) => offersFromForm.some((formOffer) => offer.title === formOffer));
-  const city = formData.get(`event-destination`);
-  const checkedDestination = allDestinations.find((it)=> it.name === city);
-
-  return new PointModel({
-    "type": type,
-    "destination": checkedDestination,
-    "base_price": Math.abs(Number(formData.get(`event-price`))),
-    "date_from": startDate,
-    "date_to": endDate,
-    "offers": checkedOffers,
-    "is_favorite": Boolean(formData.get(`event-favorite`))
-  });
-};
-
 export default class PointController {
   constructor(container, onDataChange, onViewChange, pointsModel) {
     this._container = container;
@@ -57,13 +36,19 @@ export default class PointController {
     this._pointsModel = pointsModel;
   }
 
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceEditToPoint();
+    }
+  }
+
   render(point, mode) {
     const allOffers = this._pointsModel.getOffers();
     const allDestinations = this._pointsModel.getDestinations();
     const oldPointComponent = this._tripPoint;
     const oldPointEditComponent = this._pointEdit;
     this._tripPoint = new TripPoint(point);
-    this._pointEdit = new PointEdit(point, this._mode, this._pointsModel);
+    this._pointEdit = new PointEdit(point, mode, this._pointsModel);
     this._mode = mode;
 
     this._tripPoint.setClickHandler(() => {
@@ -74,11 +59,12 @@ export default class PointController {
     this._pointEdit.setSaveButtonHandler((evt) => {
       evt.preventDefault();
       const formData = this._pointEdit.getData();
-      const data = parseFormData(formData, allOffers, allDestinations);
+      const data = this._parseFormData(formData, allOffers, allDestinations);
+
       this._pointEdit.setData({
         SAVE_BUTTON_TEXT: `Saving...`,
       });
-
+      this._pointEdit.setDisableForm(true);
       data.id = this._pointEdit.getId();
       this._onDataChange(this, point, data);
 
@@ -116,7 +102,14 @@ export default class PointController {
         render(this._container, this._pointEdit);
         break;
     }
+  }
 
+  activateForm() {
+    this._pointEdit.setDisableForm(false);
+    this._pointEdit.setData({
+      SAVE_BUTTON_TEXT: `Save`,
+      DELETE_BUTTON_TEXT: `Delete`,
+    });
   }
 
   shake() {
@@ -135,6 +128,27 @@ export default class PointController {
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
+  _parseFormData(formData, allOffers, allDestinations) {
+    const type = formData.get(`event-type`);
+    const startDate = flatpickr.parseDate(formData.get(`event-start-time`), `d/m/y H:i`);
+    const endDate = flatpickr.parseDate(formData.get(`event-end-time`), `d/m/y H:i`);
+    const offersByType = allOffers.find((offer) => offer.type === type).offers;
+    const offersFromForm = formData.getAll(`event-offer`);
+    const checkedOffers = offersByType.filter((offer) => offersFromForm.some((formOffer) => offer.title === formOffer));
+    const city = formData.get(`event-destination`);
+    const checkedDestination = allDestinations.find((it)=> it.name === city);
+
+    return new PointModel({
+      "type": type,
+      "destination": checkedDestination,
+      "base_price": Math.abs(Number(formData.get(`event-price`))),
+      "date_from": startDate,
+      "date_to": endDate,
+      "offers": checkedOffers,
+      "is_favorite": Boolean(formData.get(`event-favorite`))
+    });
+  }
+
   _replacePointToEdit() {
     this._onViewChange();
     replace(this._pointEdit, this._tripPoint);
@@ -142,24 +156,21 @@ export default class PointController {
   }
 
   _replaceEditToPoint() {
+    if (this._mode !== Mode.ADDING) {
+      this._pointEdit.reset();
+    }
     document.removeEventListener(`keydown`, this._onEscKeyDown);
-    this._pointEdit.reset();
     replace(this._tripPoint, this._pointEdit);
     this._mode = Mode.DEFAULT;
   }
 
   _onEscKeyDown(evt) {
-    const isEscKey = evt.key === `Escape`;
-
-    if (isEscKey) {
-      this._replaceEditToTask();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
-    }
-  }
-
-  setDefaultView() {
-    if (this._mode !== Mode.DEFAULT) {
+    if (evt.key === Key.ESC) {
+      if (this._mode === Mode.ADDING) {
+        this._onDataChange(this, EmptyPoint, null);
+      }
       this._replaceEditToPoint();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 }

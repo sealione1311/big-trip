@@ -1,12 +1,12 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
 
+const SORTTYPES = [`event`, `time`, `price`];
+
 export const SortType = {
   EVENT: `sort-event`,
   TIME: `sort-time`,
   PRICE: `sort-price`
 };
-
-const SORTTYPES = [`event`, `time`, `price`];
 
 export default class Sort extends AbstractSmartComponent {
   constructor() {
@@ -24,6 +24,15 @@ export default class Sort extends AbstractSmartComponent {
     );
   }
 
+  recoveryListeners() {
+    this.setSortTypeChangeHandler(this._sortTypeChangeHandler);
+  }
+
+  reset() {
+    this._currentSortType = SortType.EVENT;
+    super.rerender();
+  }
+
   _createSortMarkup(sortType, isChecked) {
     return (
       `<div class="trip-sort__item  trip-sort__item--${sortType}">
@@ -36,29 +45,16 @@ export default class Sort extends AbstractSmartComponent {
     );
   }
 
-  recoveryListeners() {
-    this.setSortTypeChangeHandler(this._sortTypeChangeHandler);
-  }
-
-  reset() {
-    this._currentSortType = SortType.EVENT;
-    super.rerender();
-  }
-
   setSortTypeChangeHandler(handler) {
     this.getElement().addEventListener(`click`, (evt) => {
       if (evt.target.classList.value !== `trip-sort__input  visually-hidden`) {
         return;
       }
-
       const sortType = evt.target.id;
-
       if (this._currentSortType === sortType) {
         return;
       }
-
       this._currentSortType = sortType;
-
       handler(this._currentSortType);
       this._sortTypeChangeHandler = handler;
     });

@@ -1,10 +1,12 @@
+import NoPoints from "../components/point/no-points.js";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point-controller.js";
-import NoPoints from "../components/no-points.js";
-import TripDay from "../components/trip-day.js";
 import Sort, {SortType} from "../components/sort.js";
+import TripDay from "../components/trip-day.js";
 import {render, RenderPosition} from "../utils/dom-utils.js";
 import {getDurationInMs, getDateSortedPoints} from "../utils/common.js";
 import {HIDDEN_CLASS} from "../utils/const.js";
+
+const newEventButton = document.querySelector(`.trip-main__event-add-btn`);
 
 export default class TripController {
   constructor(pointsModel, pointsContainer, api) {
@@ -58,14 +60,12 @@ export default class TripController {
   }
 
   createPoint() {
-
     if (this._creatingPoint) {
       return;
     }
-
+    const sortForm = document.querySelector(`.trip-sort`);
     this._onViewChange();
     this._sortEvents.reset();
-    const sortForm = document.querySelector(`.trip-sort`);
     this._creatingPoint = new PointController(sortForm, this._onDataChange, this._onViewChange, this._pointsModel);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING, RenderPosition.AFTEREND);
   }
@@ -76,6 +76,58 @@ export default class TripController {
 
   show() {
     this._container.classList.remove(HIDDEN_CLASS);
+  }
+
+  _onDataChange(pointController, oldData, newData, isFavoriteUpdate = false) {
+    if (oldData === EmptyPoint) {
+      this._creatingPoint = null;
+      if (newData === null) {
+        pointController.destroy();
+        this._updatePoints();
+        newEventButton.disabled = false;
+      } else {
+        this._api.createPoint(newData)
+          .then((newPoint) => {
+            this._pointsModel.addPoint(newPoint);
+            pointController.render(newPoint, PointControllerMode.ADDING);
+            this._observer = [].concat(pointController, this._observer);
+            this._updatePoints();
+            this._newEventButton.disabled = false;
+          })
+          .catch(() => {
+            pointController.shake();
+            pointController.activateForm();
+          });
+      }
+    } else if (newData === null) {
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          this._pointsModel.removePoint(oldData.id);
+          this._updatePoints();
+        })
+        .catch(() => {
+          pointController.shake();
+          pointController.activateForm();
+        });
+    } else {
+
+      this._api.updatePoint(oldData.id, newData)
+        .then((updetedPoint) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, updetedPoint);
+
+          if (isSuccess) {
+            if (isFavoriteUpdate) {
+              return;
+            }
+            pointController.render(updetedPoint, PointControllerMode.DEFAULT);
+            this._updatePoints();
+          }
+        })
+        .catch(() => {
+          pointController.shake();
+          pointController.activateForm();
+        });
+    }
   }
 
   _renderPointsandDays(points) {
@@ -132,58 +184,12 @@ export default class TripController {
     return sortedEvents;
   }
 
-  _onDataChange(pointController, oldData, newData, isFavoriteUpdate = false) {
-    const newEventButton = document.querySelector(`.trip-main__event-add-btn`);
-
-    if (oldData === EmptyPoint) {
-      this._creatingPoint = null;
-      if (newData === null) {
-        pointController.destroy();
-        this._updatePoints();
-        newEventButton.disabled = false;
-      } else {
-        this._api.createPoint(newData)
-          .then((newPoint) => {
-            this._pointsModel.addPoint(newPoint);
-            pointController.render(newPoint, PointControllerMode.ADDING);
-            this._observer = [].concat(pointController, this._observer);
-            this._updatePoints();
-            newEventButton.disabled = false;
-          })
-          .catch(() => {
-            pointController.shake();
-          });
-      }
-    } else if (newData === null) {
-      this._api.deletePoint(oldData.id)
-        .then(() => {
-          this._pointsModel.removePoint(oldData.id);
-          this._updatePoints();
-        })
-        .catch(() => {
-          pointController.shake();
-        });
-    } else {
-
-      this._api.updatePoint(oldData.id, newData)
-        .then((updetedPoint) => {
-          const isSuccess = this._pointsModel.updatePoint(oldData.id, updetedPoint);
-
-          if (isSuccess) {
-            if (isFavoriteUpdate) {
-              return;
-            }
-            pointController.render(updetedPoint, PointControllerMode.DEFAULT);
-            this._updatePoints();
-          }
-        })
-        .catch(() => {
-          pointController.shake();
-        });
-    }
-  }
-
   _onViewChange() {
+    if (this._creatingPoint) {
+      this._creatingPoint.destroy();
+      this._creatingPoint = null;
+      this._newEventButton.disabled = false;
+    }
     this._observer.forEach((pointController) => pointController.setDefaultView());
   }
 
