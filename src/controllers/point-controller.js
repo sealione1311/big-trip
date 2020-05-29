@@ -4,6 +4,8 @@ import {render, replace, remove} from "../utils/dom-utils.js";
 import PointModel from "../models/point-model.js";
 import flatpickr from "flatpickr";
 
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
 
 export const Mode = {
   DEFAULT: `default`,
@@ -73,6 +75,10 @@ export default class PointController {
       evt.preventDefault();
       const formData = this._pointEdit.getData();
       const data = parseFormData(formData, allOffers, allDestinations);
+      this._pointEdit.setData({
+        SAVE_BUTTON_TEXT: `Saving...`,
+      });
+
       data.id = this._pointEdit.getId();
       this._onDataChange(this, point, data);
 
@@ -84,7 +90,12 @@ export default class PointController {
       this._onDataChange(this, point, data, true);
     });
 
-    this._pointEdit.setDeleteButtonClickHandler(() => this._onDataChange(this, point, null));
+    this._pointEdit.setDeleteButtonClickHandler(() => {
+      this._pointEdit.setData({
+        DELETE_BUTTON_TEXT: `Deleting...`,
+      });
+      this._onDataChange(this, point, null);
+    });
 
     switch (mode) {
       case Mode.DEFAULT:
@@ -106,6 +117,16 @@ export default class PointController {
         break;
     }
 
+  }
+
+  shake() {
+    this._pointEdit.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._tripPoint.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._pointEdit.getElement().style.animation = ``;
+      this._tripPoint.getElement().style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
   destroy() {

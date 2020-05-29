@@ -22,8 +22,8 @@ const checkStatus = (response) => {
     return response;
   }
   throw new Error(`${response.status}: ${response.statusText}`);
-
 };
+
 export default class API {
   constructor(authorization, endPoint) {
     this._authorization = authorization;
@@ -46,6 +46,17 @@ export default class API {
       .then((response) => response.json());
   }
 
+  createPoint(point) {
+    return this._load({
+      url: URL.POINTS,
+      method: Method.POST,
+      body: JSON.stringify(point.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then((response) => response.json())
+      .then(PointModel.parsePoint);
+  }
+
   updatePoint(id, data) {
     return this._load({
       url: `${URL.POINTS}/${id}`,
@@ -56,6 +67,11 @@ export default class API {
       .then((response) => response.json())
       .then(PointModel.parsePoint);
   }
+
+  deletePoint(id) {
+    return this._load({url: `${URL.POINTS}/${id}`, method: Method.DELETE});
+  }
+
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 

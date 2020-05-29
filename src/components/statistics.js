@@ -47,7 +47,6 @@ const typeSymbols = new Map([
 
 
 const createChartTemplate = (ctx, data, formatter, title) => {
-  debugger
   return new Chart(ctx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,

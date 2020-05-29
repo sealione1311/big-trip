@@ -1,11 +1,15 @@
 import {eventActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../utils/const.js";
 import {formatEventEditDate, capitalize} from "../utils/common.js";
-
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {Mode} from "../controllers/point-controller.js";
 import flatpickr from "flatpickr";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
+
+const DefaultData = {
+  DELETE_BUTTON_TEXT: `Delete`,
+  SAVE_BUTTON_TEXT: `Save`,
+};
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode, pointsModel) {
@@ -13,6 +17,7 @@ export default class PointEdit extends AbstractSmartComponent {
     const {id, type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
     this._id = id;
+    this._externalData = DefaultData;
     this._pointsModel = pointsModel;
     this._offersByType = pointsModel.getOffersbyType(type);
     this._mode = mode;
@@ -35,11 +40,17 @@ export default class PointEdit extends AbstractSmartComponent {
     this._deleteButtonClickHandler = null;
 
 
+
   }
 
   getTemplate() {
 
+
+    const deleteButtonText = this._externalData.DELETE_BUTTON_TEXT;
+
+    const saveButtonText = this._externalData.SAVE_BUTTON_TEXT;
     const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
+
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -93,8 +104,8 @@ export default class PointEdit extends AbstractSmartComponent {
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._eventPrice}" required>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `Delete` : `Cancel`}</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
+        <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `${deleteButtonText}` : `Cancel`}</button>
         ${this._createFavoriteButton()}
       </header>
       <section class="event__details">
@@ -145,7 +156,16 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   _createOfferMarkup(offerByType, checkedOffers) {
-    const isChecked = checkedOffers.some((offer) => offer.title === offerByType.title);
+    const getCheckedStatus = () => {
+      if (checkedOffers !== null) {
+        return checkedOffers.some((offer) => offer.title === offerByType.title);
+
+      }
+      return false;
+    };
+
+    const isChecked = getCheckedStatus();
+
     return (
       `<div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden"
@@ -164,6 +184,11 @@ export default class PointEdit extends AbstractSmartComponent {
     return (
       `<img class="event__photo" src="${photo.src}" alt="Event photo">`
     );
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.rerender();
   }
 
   _createFavoriteButton() {

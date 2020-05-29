@@ -58,6 +58,7 @@ export default class TripController {
   }
 
   createPoint() {
+
     if (this._creatingPoint) {
       return;
     }
@@ -65,7 +66,7 @@ export default class TripController {
     this._onViewChange();
     this._sortEvents.reset();
     const sortForm = document.querySelector(`.trip-sort`);
-    this._creatingPoint = new PointController(sortForm, this._onDataChange, this._onViewChange);
+    this._creatingPoint = new PointController(sortForm, this._onDataChange, this._onViewChange, this._pointsModel);
     this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING, RenderPosition.AFTEREND);
   }
 
@@ -141,16 +142,27 @@ export default class TripController {
         this._updatePoints();
         newEventButton.disabled = false;
       } else {
-
-        this._pointsModel.addPoint(newData);
-        pointController.render(newData, PointControllerMode.DEFAULT);
-        this._observer = [].concat(pointController, this._observer);
-        this._updatePoints();
-        newEventButton.disabled = false;
+        this._api.createPoint(newData)
+          .then((newPoint) => {
+            this._pointsModel.addPoint(newPoint);
+            pointController.render(newPoint, PointControllerMode.ADDING);
+            this._observer = [].concat(pointController, this._observer);
+            this._updatePoints();
+            newEventButton.disabled = false;
+          })
+          .catch(() => {
+            pointController.shake();
+          });
       }
     } else if (newData === null) {
-      this._pointsModel.removePoint(oldData.id);
-      this._updatePoints();
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          this._pointsModel.removePoint(oldData.id);
+          this._updatePoints();
+        })
+        .catch(() => {
+          pointController.shake();
+        });
     } else {
 
       this._api.updatePoint(oldData.id, newData)
@@ -164,6 +176,9 @@ export default class TripController {
             pointController.render(updetedPoint, PointControllerMode.DEFAULT);
             this._updatePoints();
           }
+        })
+        .catch(() => {
+          pointController.shake();
         });
     }
   }

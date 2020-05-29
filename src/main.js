@@ -70,6 +70,7 @@ siteComponent.setActiveMenuItemChangeHandler((menuItem) => {
 });
 
 newEventButton.addEventListener(`click`, () => {
+  debugger
   filterController.reset();
   tripController.createPoint();
   newEventButton.setAttribute(`disabled`, `true`);
