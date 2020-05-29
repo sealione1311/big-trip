@@ -10,14 +10,6 @@ export default class PointModel {
     this.isFavorite = Boolean(data[`is_favorite`]);
   }
 
-  static parsePoint(data) {
-    return new PointModel(data);
-  }
-
-  static parsePoints(data) {
-    return data.map(PointModel.parsePoint);
-  }
-
   toRAW() {
     return {
       "id": this.id,
@@ -28,11 +20,18 @@ export default class PointModel {
       "date_to": this.endDate.toJSON(),
       "offers": this.offers,
       "is_favorite": this.isFavorite,
-
     };
   }
 
   static clone(data) {
     return new PointModel(data.toRAW());
+  }
+
+  static parsePoint(data) {
+    return new PointModel(data);
+  }
+
+  static parsePoints(data) {
+    return data.map(PointModel.parsePoint);
   }
 }

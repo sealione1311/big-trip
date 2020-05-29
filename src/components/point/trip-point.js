@@ -1,6 +1,6 @@
-import {formatTime, formatDate, capitalize, getDuration} from "../utils/common.js";
-import {MAX_OFFERS_IN_POINT, eventActionMap} from "../utils/const.js";
-import AbstractComponent from "./abstract-component.js";
+import AbstractComponent from "../abstract-component.js";
+import {formatTime, formatDate, capitalize, getDuration} from "../../utils/common.js";
+import {MAX_OFFERS_IN_POINT, eventActionMap} from "../../utils/const.js";
 
 export default class TripPoint extends AbstractComponent {
   constructor({type, destination, eventPrice, startDate, endDate, offers}) {

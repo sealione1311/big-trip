@@ -1,4 +1,5 @@
 import PointModel from "../models/point-model.js";
+
 const Method = {
   GET: `GET`,
   POST: `POST`,
@@ -11,7 +12,7 @@ const Code = {
   REDIRECTION: 300
 };
 
-const URL = {
+const Url = {
   POINTS: `points`,
   DESTINATIONS: `destinations`,
   OFFERS: `offers`
@@ -22,33 +23,45 @@ const checkStatus = (response) => {
     return response;
   }
   throw new Error(`${response.status}: ${response.statusText}`);
-
 };
+
 export default class API {
   constructor(authorization, endPoint) {
     this._authorization = authorization;
     this._endPoint = endPoint;
   }
+
   getPoints() {
-    return this._load({url: URL.POINTS})
+    return this._load({url: Url.POINTS})
     .then(checkStatus)
     .then((response) => response.json())
     .then(PointModel.parsePoints);
   }
 
   getOffers() {
-    return this._load({url: URL.OFFERS})
+    return this._load({url: Url.OFFERS})
       .then((response) => response.json());
   }
 
   getDestinations() {
-    return this._load({url: URL.DESTINATIONS})
+    return this._load({url: Url.DESTINATIONS})
       .then((response) => response.json());
+  }
+
+  createPoint(point) {
+    return this._load({
+      url: Url.POINTS,
+      method: Method.POST,
+      body: JSON.stringify(point.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then((response) => response.json())
+      .then(PointModel.parsePoint);
   }
 
   updatePoint(id, data) {
     return this._load({
-      url: `${URL.POINTS}/${id}`,
+      url: `${Url.POINTS}/${id}`,
       method: Method.PUT,
       body: JSON.stringify(data.toRAW()),
       headers: new Headers({"Content-Type": `application/json`})
@@ -56,6 +69,11 @@ export default class API {
       .then((response) => response.json())
       .then(PointModel.parsePoint);
   }
+
+  deletePoint(id) {
+    return this._load({url: `${Url.POINTS}/${id}`, method: Method.DELETE});
+  }
+
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 

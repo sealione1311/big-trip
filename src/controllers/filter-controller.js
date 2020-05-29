@@ -2,7 +2,6 @@ import {FilterType} from "../utils/const.js";
 import Filter from "../components/filter.js";
 import {render, replace} from "../utils/dom-utils.js";
 
-
 export default class FilterController {
   constructor(container, pointsModel) {
     this._container = container;
@@ -34,17 +33,17 @@ export default class FilterController {
     }
   }
 
+  reset() {
+    this._onFilterChange(FilterType.EVERYTHING);
+    this.render();
+  }
+
   _onFilterChange(filterType) {
     this._activeFilterType = filterType;
     this._pointsModel.setFilter(filterType);
   }
 
   _onDataChange() {
-    this.render();
-  }
-
-  reset() {
-    this._onFilterChange(FilterType.EVERYTHING);
     this.render();
   }
 }

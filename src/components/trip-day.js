@@ -1,6 +1,6 @@
 import AbstractComponent from "./abstract-component.js";
-import {MONTHS} from "../utils/const.js";
 import {castDateTimeFormat} from "../utils/common.js";
+import {MONTHS} from "../utils/const.js";
 
 export default class TripDay extends AbstractComponent {
   constructor(dates) {
