@@ -6,7 +6,7 @@ import SiteMenu from "./components/site-menu.js";
 import Statistics from "./components/statistics.js";
 import TripCost from "./components/trip-cost.js";
 import TripController from "./controllers/trip-controller.js";
-import {render, RenderPosition} from "./utils/dom-utils.js";
+import {render, RenderPosition, remove} from "./utils/dom-utils.js";
 import {MenuItem} from "./utils/const.js";
 
 const AUTHORIZATION = `Basic wmlafpoRyDLjuhtGkgL`;
@@ -17,7 +17,7 @@ const filterContainer = mainContainer.querySelector(`.trip-controls`);
 const menuContainer = filterContainer.querySelector(`h2`);
 const pageBodyContainer = document.querySelector(`.page-main .page-body__container`);
 const pointsContainer = document.querySelector(`.trip-events`);
-const newEventButton = document.querySelector(`.trip-main__event-add-btn`);
+const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 
 const pointsModel = new PointsModel();
 const api = new API(AUTHORIZATION, END_POINT);
@@ -41,7 +41,7 @@ Promise.all([
   render(mainContainer, new TripCost(points), RenderPosition.AFTERBEGIN);
   filterController.render();
   tripController.render();
-  loading.hide();
+  remove(loading);
 })
 .catch(() => {
   loading.hide();
@@ -56,19 +56,17 @@ siteComponent.setActiveMenuItemChangeHandler((menuItem) => {
     case MenuItem.STATS:
       filterController.reset();
       tripController.hide();
-      newEventButton.setAttribute(`disabled`, `true`);
       statistics.show();
       break;
     case MenuItem.TABLE:
       statistics.hide();
       tripController.show();
-      newEventButton.removeAttribute(`disabled`);
       break;
   }
 });
 
-newEventButton.addEventListener(`click`, () => {
+newPointButton.addEventListener(`click`, () => {
   filterController.reset();
   tripController.createPoint();
-  newEventButton.setAttribute(`disabled`, `true`);
+  newPointButton.setAttribute(`disabled`, `true`);
 });

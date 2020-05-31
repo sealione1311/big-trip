@@ -1,13 +1,13 @@
 export default class PointModel {
-  constructor(data) {
-    this.id = data.id;
-    this.type = data.type;
-    this.destination = data.destination;
-    this.eventPrice = data[`base_price`];
-    this.startDate = new Date(data[`date_from`]);
-    this.endDate = new Date(data[`date_to`]);
-    this.offers = data[`offers`];
-    this.isFavorite = Boolean(data[`is_favorite`]);
+  constructor(point) {
+    this.id = point.id;
+    this.type = point.type;
+    this.destination = point.destination;
+    this.pointPrice = point[`base_price`];
+    this.startDate = new Date(point[`date_from`]);
+    this.endDate = new Date(point[`date_to`]);
+    this.offers = point[`offers`];
+    this.isFavorite = Boolean(point[`is_favorite`]);
   }
 
   toRAW() {
@@ -15,7 +15,7 @@ export default class PointModel {
       "id": this.id,
       "type": this.type,
       "destination": this.destination,
-      "base_price": this.eventPrice,
+      "base_price": this.pointPrice,
       "date_from": this.startDate.toJSON(),
       "date_to": this.endDate.toJSON(),
       "offers": this.offers,
@@ -23,15 +23,15 @@ export default class PointModel {
     };
   }
 
-  static clone(data) {
-    return new PointModel(data.toRAW());
+  static clone(point) {
+    return new PointModel(point.toRAW());
   }
 
-  static parsePoint(data) {
-    return new PointModel(data);
+  static parsePoint(point) {
+    return new PointModel(point);
   }
 
-  static parsePoints(data) {
-    return data.map(PointModel.parsePoint);
+  static parsePoints(points) {
+    return points.map(PointModel.parsePoint);
   }
 }

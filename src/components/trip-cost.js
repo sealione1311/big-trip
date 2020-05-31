@@ -5,6 +5,7 @@ export default class TripCost extends AbstractComponent {
   constructor(points) {
     super();
     this._points = points;
+    this._tripCost = null;
   }
 
   getTemplate() {
@@ -22,6 +23,6 @@ export default class TripCost extends AbstractComponent {
     return offers.reduce((total, offer) => total + offer.price, 0);
   }
   _calculateTotalPrice(points) {
-    return points.reduce((total, point) => total + point.eventPrice + this._calculateOffersPrice(point.offers), 0);
+    return points.reduce((total, point) => total + point.pointPrice + this._calculateOffersPrice(point.offers), 0);
   }
 }

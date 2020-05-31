@@ -203,7 +203,7 @@ export default class Statistics extends AbstractSmartComponent {
       }
       sum.set(type, sum.get(type) + cb(event));
 
-      if (cb(event) === true) {
+      if (cb(event)) {
         ACTIVITY_TYPES.forEach((it) => {
           sum.delete(it.toString().toLowerCase());
         });
@@ -218,7 +218,7 @@ export default class Statistics extends AbstractSmartComponent {
 
   _getMoneyTotal() {
     return this._getData((event) => {
-      return +event.eventPrice;
+      return +event.pointPrice;
     });
   }
 

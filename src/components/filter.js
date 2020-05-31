@@ -9,7 +9,7 @@ export default class Filter extends AbstractComponent {
   getTemplate() {
     return (
       `<form class="trip-filters" action="#" method="get">
-        ${this._filters.map((it) => this._renderFilter(it, it.checked)).join(`\n`)}
+        ${this._filters.map((filter) => this._renderFilter(filter, filter.checked)).join(`\n`)}
         <button class="visually-hidden" type="submit">Accept filter</button>
       </form>`
     ).trim();

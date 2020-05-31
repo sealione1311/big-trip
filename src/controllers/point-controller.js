@@ -2,7 +2,7 @@ import flatpickr from "flatpickr";
 import PointEdit from "../components/point/point-edit.js";
 import PointModel from "../models/point-model.js";
 import TripPoint from "../components/point/trip-point.js";
-import {render, replace, remove} from "../utils/dom-utils.js";
+import {render, replace, remove, RenderPosition} from "../utils/dom-utils.js";
 import {Key} from "../utils/const.js";
 
 const SHAKE_ANIMATION_TIMEOUT = 600;
@@ -59,21 +59,22 @@ export default class PointController {
     this._pointEdit.setSaveButtonHandler((evt) => {
       evt.preventDefault();
       const formData = this._pointEdit.getData();
-      const data = this._parseFormData(formData, allOffers, allDestinations);
+      const newPoint = this._parseFormData(formData, allOffers, allDestinations);
 
       this._pointEdit.setData({
         SAVE_BUTTON_TEXT: `Saving...`,
       });
       this._pointEdit.setDisableForm(true);
-      data.id = this._pointEdit.getId();
-      this._onDataChange(this, point, data);
+      newPoint.id = this._pointEdit.getId();
+      this._onDataChange(this, point, newPoint);
 
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
+
     this._pointEdit.setFavoriteButtonClickHandler(() => {
-      const data = PointModel.clone(point);
-      data.isFavorite = !data.isFavorite;
-      this._onDataChange(this, point, data, true);
+      const clonePoint = PointModel.clone(point);
+      clonePoint.isFavorite = !clonePoint.isFavorite;
+      this._onDataChange(this, point, clonePoint, true);
     });
 
     this._pointEdit.setDeleteButtonClickHandler(() => {
@@ -81,6 +82,11 @@ export default class PointController {
         DELETE_BUTTON_TEXT: `Deleting...`,
       });
       this._onDataChange(this, point, null);
+    });
+
+    this._pointEdit.setRollUpButtonHandler(() => {
+      this._replaceEditToPoint();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
     switch (mode) {
@@ -99,7 +105,7 @@ export default class PointController {
           remove(oldPointEditComponent);
         }
         document.addEventListener(`keydown`, this._onEscKeyDown);
-        render(this._container, this._pointEdit);
+        render(this._container, this._pointEdit, RenderPosition.AFTERBEGIN);
         break;
     }
   }
@@ -136,7 +142,7 @@ export default class PointController {
     const offersFromForm = formData.getAll(`event-offer`);
     const checkedOffers = offersByType.filter((offer) => offersFromForm.some((formOffer) => offer.title === formOffer));
     const city = formData.get(`event-destination`);
-    const checkedDestination = allDestinations.find((it)=> it.name === city);
+    const checkedDestination = allDestinations.find((destination)=> destination.name === city);
 
     return new PointModel({
       "type": type,

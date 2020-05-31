@@ -13,11 +13,11 @@ export const formatTime = (date) => {
 };
 
 export const formatDate = (date) => {
-  return moment(date).format(`YYYY-MM-DD`);
+  return moment(date).format(`YYYY/MM/DD`);
 };
 
 export const formatEventEditDate = (date) => {
-  return moment(date).format(`DD-MM-YY HH:mm`);
+  return moment(date).format(`DD/MM/YY HH:mm`);
 };
 
 export const getDuration = (startDate, endDate) => {
@@ -42,5 +42,6 @@ export const getDurationInMs = (startDate, endDate) => {
 };
 
 export const getDateSortedPoints = (points) => {
-  return points.sort((a, b) => a.startDate - b.startDate).map((point)=> point.startDate.toDateString());
+
+  return points.slice().sort((a, b) => a.startDate - b.startDate).map((point)=> point.startDate.toDateString());
 };

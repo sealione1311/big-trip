@@ -1,6 +1,6 @@
 import AbstractSmartComponent from "../abstract-smart-component.js";
 import flatpickr from "flatpickr";
-import {eventActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../../utils/const.js";
+import {pointActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../../utils/const.js";
 import {formatEventEditDate, capitalize} from "../../utils/common.js";
 import {Mode} from "../../controllers/point-controller.js";
 import {encode} from "he";
@@ -15,36 +15,40 @@ const DefaultData = {
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode, pointsModel) {
-    const {id, type, eventPrice, startDate, endDate, destination, offers, isFavorite} = point;
+    const {id, type, pointPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
     this._id = id;
     this._externalData = DefaultData;
     this._pointsModel = pointsModel;
-    this._offersByType = pointsModel.getOffersbyType(type);
+    this._offersByType = ``;
     this._mode = mode;
     this._point = point;
     this._type = type;
-    this._eventPrice = eventPrice;
-    this._eventStart = formatEventEditDate(startDate);
-    this._eventEnd = formatEventEditDate(endDate);
+    this._pointPrice = pointPrice;
+    this._pointStart = formatEventEditDate(startDate);
+    this._pointEnd = formatEventEditDate(endDate);
     this._destination = destination === `` ? `` : destination.name;
     this._destinationInfo = destination.description;
     this._chekedOffers = offers;
     this._destinationPhoto = destination.pictures;
-    this._action = eventActionMap[type];
+    this._action = pointActionMap[type];
     this._isFavorite = isFavorite;
     this._saveButtonHandler = null;
     this._favoriteButtonHandler = null;
+    this._editFormRollUpHandler = null;
     this.subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
     this._deleteButtonClickHandler = null;
+    this._isOffersHide = true;
   }
 
   getTemplate() {
     const deleteButtonText = this._externalData.DELETE_BUTTON_TEXT;
     const saveButtonText = this._externalData.SAVE_BUTTON_TEXT;
     const destinationsCities = (this._pointsModel.getDestinations()).map((it) => it.name);
+    const offersMarkup = this._offersByType === `` ? `` : this._createOffersMarkup();
+
 
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -83,12 +87,12 @@ export default class PointEdit extends AbstractSmartComponent {
           <label class="visually-hidden" for="event-start-time-1">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._eventStart}" required>
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._pointStart}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._eventEnd}" required>
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._pointEnd}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -96,22 +100,15 @@ export default class PointEdit extends AbstractSmartComponent {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._eventPrice}" required>
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._pointPrice}" required>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
         <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `${deleteButtonText}` : `Cancel`}</button>
-        ${this._mode !== Mode.ADDING ? this._createFavoriteButton() : ``}
+        ${this._mode !== Mode.ADDING ? this._createFormEditButtons() : ``}
       </header>
-      <section class="event__details">
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-          <div class="event__available-offers">
-
-          ${this._offersByType !== null ? this._offersByType.map((offer) => this._createOfferMarkup(offer, this._chekedOffers)).join(`\n`) : ``}
-          </div>
-        </section>
+      ${this._destination || offersMarkup !== `` ? `<section class="event__details">
+      ${offersMarkup}
         ${this._destination === `` ? `` :
         `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -123,8 +120,8 @@ export default class PointEdit extends AbstractSmartComponent {
 
             </div>
           </div>
-        </section>
-      </section>`}
+        </section>`}
+      </section>` : ``}
     </form>`
     );
 
@@ -149,7 +146,7 @@ export default class PointEdit extends AbstractSmartComponent {
       this.getElement().querySelectorAll(`fieldset, input, button`)
         .forEach((formElement) => formElement.setAttribute(`disabled`, `true`));
     } else {
-      document.querySelectorAll(`fieldset, button`)
+      this.getElement().querySelectorAll(`fieldset, button`)
         .forEach((formElement) => formElement.setAttribute(`disabled`, `false`));
     }
   }
@@ -158,19 +155,20 @@ export default class PointEdit extends AbstractSmartComponent {
     const destinationsCities = (this._pointsModel.getDestinations()).map((destinaition) => destinaition.name);
     const deststinations = this._pointsModel.getDestinations();
     const element = this.getElement();
-    const eventTypeList = element.querySelector(`.event__type-list`);
+    const pointTypeList = element.querySelector(`.event__type-list`);
     const destinationsListInput = element.querySelector(`#event-destination-1`);
-    const eventPriceInput = element.querySelector(`#event-price-1`);
-    const validityStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
-    const validityEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
+    const pointPriceInput = element.querySelector(`#event-price-1`);
+    const pointStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
+    const pointEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
     const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
 
 
-    eventTypeList.addEventListener(`change`, (evt) => {
+    pointTypeList.addEventListener(`change`, (evt) => {
       evt.preventDefault();
       this._type = evt.target.value;
       this._offersByType = this._pointsModel.getOffersbyType(this._type);
-      this._action = eventActionMap[this._type];
+      this._action = pointActionMap[this._type];
+      this._isOffersHide = false;
       this.rerender();
     });
 
@@ -202,29 +200,29 @@ export default class PointEdit extends AbstractSmartComponent {
       }
     });
 
-    eventPriceInput.addEventListener(`keyup`, () => {
-      eventPriceInput.value = eventPriceInput.value.replace(/[^\d]/g, ``);
-      this._eventPrice = encode(eventPriceInput.value);
+    pointPriceInput.addEventListener(`keyup`, () => {
+      pointPriceInput.value = pointPriceInput.value.replace(/[^\d]/g, ``);
+      this._pointPrice = encode(pointPriceInput.value);
     });
 
-    validityEndTimeInput.addEventListener(`change`, () => {
-      if (validityEndTimeInput) {
-        if (validityEndTimeInput.value < validityStartTimeInput.value) {
-          validityEndTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
-          validityEndTimeInput.reportValidity();
+    pointEndTimeInput.addEventListener(`change`, () => {
+      if (pointEndTimeInput) {
+        if (pointEndTimeInput.value < pointStartTimeInput.value) {
+          pointEndTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          pointEndTimeInput.reportValidity();
         } else {
-          validityEndTimeInput.setCustomValidity(``);
+          pointEndTimeInput.setCustomValidity(``);
         }
       }
     });
 
-    validityStartTimeInput.addEventListener(`change`, () => {
-      if (validityStartTimeInput) {
-        if (validityEndTimeInput.value < validityStartTimeInput.value) {
-          validityStartTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
-          validityStartTimeInput.reportValidity();
+    pointStartTimeInput.addEventListener(`change`, () => {
+      if (pointStartTimeInput) {
+        if (pointEndTimeInput.value < pointStartTimeInput.value) {
+          pointStartTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          pointStartTimeInput.reportValidity();
         } else {
-          validityStartTimeInput.setCustomValidity(``);
+          pointStartTimeInput.setCustomValidity(``);
         }
       }
     });
@@ -234,6 +232,7 @@ export default class PointEdit extends AbstractSmartComponent {
     this.setSaveButtonHandler(this._saveButtonHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonHandler);
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setRollUpButtonHandler(this._editFormRollUpHandler);
     this.subscribeOnEvents();
   }
 
@@ -256,7 +255,7 @@ export default class PointEdit extends AbstractSmartComponent {
     this._destinationInfo = point.destination.description;
     this._offers = point.offers;
     this._type = point.type;
-    this._action = eventActionMap[point.type];
+    this._action = pointActionMap[point.type];
     this.rerender();
   }
 
@@ -272,6 +271,19 @@ export default class PointEdit extends AbstractSmartComponent {
          for="event-type-${type}-1">${capitalize(type)}</label>
       </div>`
     );
+  }
+
+  _createOffersMarkup() {
+    return (
+      ` <section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+        <div class="event__available-offers">
+
+      ${this._offersByType !== null ? this._offersByType.map((offer) => this._createOfferMarkup(offer, this._chekedOffers)).join(`\n`) : ``}
+     </div>
+   </section>`);
+
   }
 
   _createdDestinationMarkup(city) {
@@ -310,7 +322,7 @@ export default class PointEdit extends AbstractSmartComponent {
     );
   }
 
-  _createFavoriteButton() {
+  _createFormEditButtons() {
     return (
       `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : ``}>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -318,7 +330,10 @@ export default class PointEdit extends AbstractSmartComponent {
         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
           <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
         </svg>
-      </label>`);
+      </label>
+      <button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+      </button>`);
   }
 
   _applyFlatpickr() {
@@ -334,7 +349,8 @@ export default class PointEdit extends AbstractSmartComponent {
       this._flatpickr = flatpickr(input, {
         allowInput: true,
         enableTime: true,
-        dateFormat: `d-m-y H:i`,
+        dateFormat: `d/m/y H:i`,
+        [`time_24hr`]: true,
       });
     };
 
@@ -358,5 +374,12 @@ export default class PointEdit extends AbstractSmartComponent {
       favoriteButton.addEventListener(`click`, handler);
     }
     this._favoriteButtonHandler = handler;
+  }
+
+  setRollUpButtonHandler(handler) {
+    if (this.getElement().querySelector(`.event__rollup-btn`)) {
+      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+      this._editFormRollUpHandler = handler;
+    }
   }
 }

@@ -5,7 +5,7 @@ export const MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `
 export const TRANSFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
 
 
-export const eventActionMap = {
+export const pointActionMap = {
   'taxi': `to`,
   'bus': `to`,
   'train': `to`,

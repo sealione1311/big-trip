@@ -50,6 +50,7 @@ export default class PointsModel {
   }
 
   addPoint(point) {
+
     this._points = [].concat(point, this._points);
     this._callHandlers(this._dataChangeHandlers);
   }
@@ -65,7 +66,7 @@ export default class PointsModel {
   }
 
   updatePoint(id, point) {
-    const index = this._points.findIndex((item) => item.id === id);
+    const index = this._points.findIndex((pointItem) => pointItem.id === id);
     if (index === -1) {
       return false;
     }

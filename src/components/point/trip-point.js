@@ -1,18 +1,18 @@
 import AbstractComponent from "../abstract-component.js";
 import {formatTime, formatDate, capitalize, getDuration} from "../../utils/common.js";
-import {MAX_OFFERS_IN_POINT, eventActionMap} from "../../utils/const.js";
+import {MAX_OFFERS_IN_POINT, pointActionMap} from "../../utils/const.js";
 
 export default class TripPoint extends AbstractComponent {
-  constructor({type, destination, eventPrice, startDate, endDate, offers}) {
+  constructor({type, destination, pointPrice, startDate, endDate, offers}) {
     super();
     this._type = type;
     this._destination = destination;
-    this._eventPrice = eventPrice;
+    this._pointPrice = pointPrice;
     this._startDate = startDate;
     this._endDate = endDate;
-    this._eventDuration = getDuration(startDate, endDate);
+    this._pointDuration = getDuration(startDate, endDate);
     this._offers = offers;
-    this._action = eventActionMap[type];
+    this._action = pointActionMap[type];
     this._offersMarkup = this._offers !== null ? this._offers.slice(0, MAX_OFFERS_IN_POINT).map(this._createOfferMarkup).join(`\n`) : ``;
     this.formatedStartDate = formatDate(startDate);
     this.formatedEndDate = formatDate(endDate);
@@ -36,11 +36,11 @@ export default class TripPoint extends AbstractComponent {
               &mdash;
               <time class="event__end-time" datetime="${this.formatedEndDate}T${this.timeEnd}">${this.timeEnd}</time>
             </p>
-            <p class="event__duration">${this._eventDuration}</p>
+            <p class="event__duration">${this._pointDuration}</p>
           </div>
 
           <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">${this._eventPrice}</span>
+            &euro;&nbsp;<span class="event__price-value">${this._pointPrice}</span>
           </p>
 
           <h4 class="visually-hidden">Offers:</h4>
