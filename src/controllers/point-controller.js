@@ -16,10 +16,10 @@ export const Mode = {
 export const EmptyPoint = {
   type: `bus`,
   destination: ``,
-  eventPrice: `0`,
+  pointPrice: 0,
   startDate: new Date(),
   endDate: new Date(),
-  eventDuration: ``,
+  pointDuration: ``,
   offers: null,
   isFavorite: false,
 };

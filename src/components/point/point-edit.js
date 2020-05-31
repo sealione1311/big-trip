@@ -15,6 +15,7 @@ const DefaultData = {
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode, pointsModel) {
+    debugger
     const {id, type, pointPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
     this._id = id;
