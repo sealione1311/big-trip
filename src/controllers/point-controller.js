@@ -86,7 +86,6 @@ export default class PointController {
 
     this._pointEdit.setRollUpButtonHandler(() => {
       this._replaceEditToPoint();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
     switch (mode) {

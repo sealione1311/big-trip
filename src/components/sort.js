@@ -46,6 +46,7 @@ export default class Sort extends AbstractSmartComponent {
   }
 
   setSortTypeChangeHandler(handler) {
+
     this.getElement().addEventListener(`click`, (evt) => {
       if (evt.target.classList.value !== `trip-sort__input  visually-hidden`) {
         return;

@@ -15,13 +15,12 @@ const DefaultData = {
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode, pointsModel) {
-    debugger
     const {id, type, pointPrice, startDate, endDate, destination, offers, isFavorite} = point;
     super();
     this._id = id;
     this._externalData = DefaultData;
     this._pointsModel = pointsModel;
-    this._offersByType = ``;
+    this._offersByType = pointsModel.getOffersbyType(type);
     this._mode = mode;
     this._point = point;
     this._type = type;
@@ -108,7 +107,7 @@ export default class PointEdit extends AbstractSmartComponent {
         <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `${deleteButtonText}` : `Cancel`}</button>
         ${this._mode !== Mode.ADDING ? this._createFormEditButtons() : ``}
       </header>
-      ${this._destination || offersMarkup !== `` ? `<section class="event__details">
+      ${this._destination ? `<section class="event__details">
       ${offersMarkup}
         ${this._destination === `` ? `` :
         `<section class="event__section  event__section--destination">
@@ -257,6 +256,10 @@ export default class PointEdit extends AbstractSmartComponent {
     this._offers = point.offers;
     this._type = point.type;
     this._action = pointActionMap[point.type];
+    this._isFavorite = point.isFavorite;
+    this._pointPrice = point.pointPrice;
+    this._pointStart = point.startDate;
+    this._pointEnd = point.endDate;
     this.rerender();
   }
 

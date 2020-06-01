@@ -11,7 +11,8 @@ const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
 export default class TripController {
   constructor(pointsModel, pointsContainer, api) {
     this._pointsModel = pointsModel;
-    this._points = pointsModel.getPoints();
+    this._pointsAll = [];
+    this._points = [];
     this._container = pointsContainer;
     this._sort = new Sort();
     this._noPoints = new NoPoints();
@@ -28,25 +29,25 @@ export default class TripController {
   }
   setSortType(sortType) {
     this._sortType = sortType;
-
   }
 
   render() {
     this._points = this._getSortedPoints(this._pointsModel.getFiltredPoints(), this._sortType);
+    this._pointsAll = this._pointsModel.getPoints();
 
-    const renderSortedPoints = (sortedEvents) => {
+    const renderSortedPoints = (sortedPoints) => {
       this._tripDay = new TripDay(null);
       render(this._container, this._tripDay);
       const day = document.querySelector(`.day`);
       const pointsListContainer = day.querySelector(`.trip-events__list`);
-      for (const point of sortedEvents) {
+      for (const point of sortedPoints) {
         const pointController = new PointController(pointsListContainer, this._onDataChange, this._onViewChange, this._pointsModel);
         pointController.render(point, PointControllerMode.DEFAULT, this._pointsModel);
         this._observer.push(pointController);
       }
     };
 
-    if (!this._points.length) {
+    if (!this._pointsAll.length) {
       render(this._container, this._noPoints);
       return;
     }
@@ -54,7 +55,7 @@ export default class TripController {
     render(this._container, this._sort, RenderPosition.AFTERBEGIN);
 
     this._sort.setSortTypeChangeHandler((sortType) => {
-      const sortedEvents = this._getSortedPoints(this._points, sortType);
+      const sortedEvents = this._getSortedPoints(this._pointsModel.getFiltredPoints(), sortType);
       this._removeDays();
       if (sortType === SortType.EVENT) {
         this._renderPointsandDays(sortedEvents);
@@ -79,7 +80,7 @@ export default class TripController {
     this._onViewChange();
     this._sort.reset();
     remove(this._noPoints);
-    if (!this._points.length) {
+    if (!this._pointsAll.length) {
       remove(this._sort);
       this._creatingPoint = new PointController(this._container, this._onDataChange, this._onViewChange, this._pointsModel);
     } else {
@@ -219,7 +220,7 @@ export default class TripController {
   }
 
   _onFilterChange() {
-    if (!this._points.length) {
+    if (!this._pointsAll.length) {
       return;
     }
     this.setSortType(SortType.EVENT);
