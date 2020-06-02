@@ -1,7 +1,7 @@
 import AbstractSmartComponent from "../abstract-smart-component.js";
 import flatpickr from "flatpickr";
 import {pointActionMap, TRANSFER_TYPES, ACTIVITY_TYPES} from "../../utils/const.js";
-import {formatEventEditDate, capitalize} from "../../utils/common.js";
+import {formatEventEditDate, capitalize, getDurationInMs} from "../../utils/common.js";
 import {Mode} from "../../controllers/point-controller.js";
 import {encode} from "he";
 import "flatpickr/dist/flatpickr.min.css";
@@ -207,7 +207,10 @@ export default class PointEdit extends AbstractSmartComponent {
 
     pointEndTimeInputElement.addEventListener(`change`, () => {
       if (pointEndTimeInputElement) {
-        if (pointEndTimeInputElement.value < pointStartTimeInputElement.value) {
+        const delta = getDurationInMs(new Date(pointStartTimeInputElement.value), new Date(pointEndTimeInputElement.value));
+
+        if (delta < 0) {
+          pointEndTimeInputElement.value = pointStartTimeInputElement.value;
           pointEndTimeInputElement.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
           pointEndTimeInputElement.reportValidity();
         } else {
@@ -218,7 +221,9 @@ export default class PointEdit extends AbstractSmartComponent {
 
     pointStartTimeInputElement.addEventListener(`change`, () => {
       if (pointStartTimeInputElement) {
-        if (pointEndTimeInputElement.value < pointStartTimeInputElement.value) {
+        const delta = getDurationInMs(new Date(pointStartTimeInputElement.value), new Date(pointEndTimeInputElement.value));
+        if (delta < 0) {
+          pointEndTimeInputElement.value = pointStartTimeInputElement.value;
           pointStartTimeInputElement.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
           pointStartTimeInputElement.reportValidity();
         } else {

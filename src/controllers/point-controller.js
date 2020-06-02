@@ -119,11 +119,10 @@ export default class PointController {
 
   shake() {
     this._pointEdit.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-    this._tripPoint.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._pointEdit.getElement().style.outline = `2px solid red`;
 
     setTimeout(() => {
       this._pointEdit.getElement().style.animation = ``;
-      this._tripPoint.getElement().style.animation = ``;
     }, SHAKE_ANIMATION_TIMEOUT);
   }
 
