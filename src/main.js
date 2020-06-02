@@ -12,22 +12,22 @@ import {MenuItem} from "./utils/const.js";
 const AUTHORIZATION = `Basic wmlafpoRyDLjuhtGkgL`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
-const mainContainer = document.querySelector(`.trip-main`);
-const filterContainer = mainContainer.querySelector(`.trip-controls`);
-const menuContainer = filterContainer.querySelector(`h2`);
-const pageBodyContainer = document.querySelector(`.page-main .page-body__container`);
-const pointsContainer = document.querySelector(`.trip-events`);
-const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
+const mainElement = document.querySelector(`.trip-main`);
+const filterElement = mainElement.querySelector(`.trip-controls`);
+const menuElement = filterElement.querySelector(`h2`);
+const pageBodyElement = document.querySelector(`.page-main .page-body__container`);
+const pointsElement = document.querySelector(`.trip-events`);
+const newPointButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
 const pointsModel = new PointsModel();
 const api = new API(AUTHORIZATION, END_POINT);
 const loading = new Loading();
 const siteComponent = new SiteMenu();
 const statistics = new Statistics(pointsModel);
-render(pointsContainer, loading);
-render(menuContainer, siteComponent, RenderPosition.AFTEREND);
-const filterController = new FilterController(filterContainer, pointsModel);
-const tripController = new TripController(pointsModel, pointsContainer, api);
+render(pointsElement, loading);
+render(menuElement, siteComponent, RenderPosition.AFTEREND);
+const filterController = new FilterController(filterElement, pointsModel);
+const tripController = new TripController(pointsModel, pointsElement, api);
 
 Promise.all([
   api.getPoints(),
@@ -38,7 +38,7 @@ Promise.all([
   pointsModel.setPoints(points);
   pointsModel.setOffers(offers);
   pointsModel.setDestinations(destinations);
-  render(mainContainer, new TripCost(points), RenderPosition.AFTERBEGIN);
+  render(mainElement, new TripCost(points), RenderPosition.AFTERBEGIN);
   filterController.render();
   tripController.render();
   remove(loading);
@@ -48,7 +48,7 @@ Promise.all([
   loading.setErrorMessage();
 });
 
-render(pageBodyContainer, statistics);
+render(pageBodyElement, statistics);
 statistics.hide();
 
 siteComponent.setActiveMenuItemChangeHandler((menuItem) => {
@@ -65,8 +65,8 @@ siteComponent.setActiveMenuItemChangeHandler((menuItem) => {
   }
 });
 
-newPointButton.addEventListener(`click`, () => {
+newPointButtonElement.addEventListener(`click`, () => {
   filterController.reset();
   tripController.createPoint();
-  newPointButton.setAttribute(`disabled`, `true`);
+  newPointButtonElement.setAttribute(`disabled`, `true`);
 });

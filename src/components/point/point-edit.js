@@ -107,7 +107,7 @@ export default class PointEdit extends AbstractSmartComponent {
         <button class="event__reset-btn" type="reset">${this._mode !== Mode.ADDING ? `${deleteButtonText}` : `Cancel`}</button>
         ${this._mode !== Mode.ADDING ? this._createFormEditButtons() : ``}
       </header>
-      ${this._destination ? `<section class="event__details">
+      <section class="event__details">
       ${offersMarkup}
         ${this._destination === `` ? `` :
         `<section class="event__section  event__section--destination">
@@ -121,7 +121,7 @@ export default class PointEdit extends AbstractSmartComponent {
             </div>
           </div>
         </section>`}
-      </section>` : ``}
+      </section>
     </form>`
     );
 
@@ -155,15 +155,15 @@ export default class PointEdit extends AbstractSmartComponent {
     const destinationsCities = (this._pointsModel.getDestinations()).map((destinaition) => destinaition.name);
     const deststinations = this._pointsModel.getDestinations();
     const element = this.getElement();
-    const pointTypeList = element.querySelector(`.event__type-list`);
-    const destinationsListInput = element.querySelector(`#event-destination-1`);
-    const pointPriceInput = element.querySelector(`#event-price-1`);
-    const pointStartTimeInput = this.getElement().querySelector(`#event-start-time-1`);
-    const pointEndTimeInput = this.getElement().querySelector(`#event-end-time-1`);
-    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    const pointTypeListElement = element.querySelector(`.event__type-list`);
+    const destinationsListInputElement = element.querySelector(`#event-destination-1`);
+    const pointPriceInputElement = element.querySelector(`#event-price-1`);
+    const pointStartTimeInputElement = this.getElement().querySelector(`#event-start-time-1`);
+    const pointEndTimeInputElement = this.getElement().querySelector(`#event-end-time-1`);
+    const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
 
 
-    pointTypeList.addEventListener(`change`, (evt) => {
+    pointTypeListElement.addEventListener(`change`, (evt) => {
       evt.preventDefault();
       this._type = evt.target.value;
       this._offersByType = this._pointsModel.getOffersbyType(this._type);
@@ -172,14 +172,14 @@ export default class PointEdit extends AbstractSmartComponent {
       this.rerender();
     });
 
-    if (favoriteButton) {
-      favoriteButton.addEventListener(`click`, () => {
+    if (favoriteButtonElement) {
+      favoriteButtonElement.addEventListener(`click`, () => {
         this._isFavorite = !this._isFavorite;
         this.rerender();
       });
     }
 
-    destinationsListInput.addEventListener(`change`, (evt) => {
+    destinationsListInputElement.addEventListener(`change`, (evt) => {
       evt.preventDefault();
 
       const index = deststinations.findIndex((destination) => destination.name === evt.target.value);
@@ -193,36 +193,36 @@ export default class PointEdit extends AbstractSmartComponent {
       this.rerender();
     });
 
-    destinationsListInput.addEventListener(`input`, () => {
-      const isValueCurrent = destinationsCities.includes(destinationsListInput.value);
+    destinationsListInputElement.addEventListener(`input`, () => {
+      const isValueCurrent = destinationsCities.includes(destinationsListInputElement.value);
       if (!isValueCurrent) {
-        destinationsListInput.value = ``;
+        destinationsListInputElement.value = ``;
       }
     });
 
-    pointPriceInput.addEventListener(`keyup`, () => {
-      pointPriceInput.value = pointPriceInput.value.replace(/[^\d]/g, ``);
-      this._pointPrice = encode(pointPriceInput.value);
+    pointPriceInputElement.addEventListener(`keyup`, () => {
+      pointPriceInputElement.value = pointPriceInputElement.value.replace(/[^\d]/g, ``);
+      this._pointPrice = encode(pointPriceInputElement.value);
     });
 
-    pointEndTimeInput.addEventListener(`change`, () => {
-      if (pointEndTimeInput) {
-        if (pointEndTimeInput.value < pointStartTimeInput.value) {
-          pointEndTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
-          pointEndTimeInput.reportValidity();
+    pointEndTimeInputElement.addEventListener(`change`, () => {
+      if (pointEndTimeInputElement) {
+        if (pointEndTimeInputElement.value < pointStartTimeInputElement.value) {
+          pointEndTimeInputElement.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          pointEndTimeInputElement.reportValidity();
         } else {
-          pointEndTimeInput.setCustomValidity(``);
+          pointEndTimeInputElement.setCustomValidity(``);
         }
       }
     });
 
-    pointStartTimeInput.addEventListener(`change`, () => {
-      if (pointStartTimeInput) {
-        if (pointEndTimeInput.value < pointStartTimeInput.value) {
-          pointStartTimeInput.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
-          pointStartTimeInput.reportValidity();
+    pointStartTimeInputElement.addEventListener(`change`, () => {
+      if (pointStartTimeInputElement) {
+        if (pointEndTimeInputElement.value < pointStartTimeInputElement.value) {
+          pointStartTimeInputElement.setCustomValidity(TEXT_ERROR_END_TIME_VALIDITY);
+          pointStartTimeInputElement.reportValidity();
         } else {
-          pointStartTimeInput.setCustomValidity(``);
+          pointStartTimeInputElement.setCustomValidity(``);
         }
       }
     });
@@ -346,8 +346,8 @@ export default class PointEdit extends AbstractSmartComponent {
       this._flatpickr = null;
     }
 
-    const dateStartInput = this.getElement().querySelector(`#event-start-time-1`);
-    const dateEndInput = this.getElement().querySelector(`#event-end-time-1`);
+    const dateStartInputElement = this.getElement().querySelector(`#event-start-time-1`);
+    const dateEndInputElement = this.getElement().querySelector(`#event-end-time-1`);
 
     const setFormateFormDate = (input) => {
       this._flatpickr = flatpickr(input, {
@@ -358,8 +358,8 @@ export default class PointEdit extends AbstractSmartComponent {
       });
     };
 
-    setFormateFormDate(dateStartInput);
-    setFormateFormDate(dateEndInput);
+    setFormateFormDate(dateStartInputElement);
+    setFormateFormDate(dateEndInputElement);
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -373,9 +373,9 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   setFavoriteButtonClickHandler(handler) {
-    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
-    if (favoriteButton) {
-      favoriteButton.addEventListener(`click`, handler);
+    const favoriteButtonElement = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (favoriteButtonElement) {
+      favoriteButtonElement.addEventListener(`click`, handler);
     }
     this._favoriteButtonHandler = handler;
   }

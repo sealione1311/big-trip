@@ -47,17 +47,13 @@ export default class Sort extends AbstractSmartComponent {
 
   setSortTypeChangeHandler(handler) {
 
-    this.getElement().addEventListener(`click`, (evt) => {
+    this.getElement().addEventListener(`change`, (evt) => {
       if (evt.target.classList.value !== `trip-sort__input  visually-hidden`) {
         return;
       }
       const sortType = evt.target.id;
-      if (this._currentSortType === sortType) {
-        return;
-      }
-      this._currentSortType = sortType;
-      handler(this._currentSortType);
-      this._sortTypeChangeHandler = handler;
+      handler(sortType);
     });
+    this._sortTypeChangeHandler = handler;
   }
 }

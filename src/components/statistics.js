@@ -65,15 +65,15 @@ export default class Statistics extends AbstractSmartComponent {
 
   getElement() {
     const element = super.getElement();
-    const moneyCtx = element.querySelector(`.statistics__chart--money`);
-    const transportCtx = element.querySelector(`.statistics__chart--transport`);
-    const timeSpendCtx = element.querySelector(`.statistics__chart--time`);
-    moneyCtx.height = ChartValue.BAR_HEIGHT * this._getMoneyTotal().length;
-    transportCtx.height = ChartValue.BAR_HEIGHT * this._getTransportTotal().length;
-    timeSpendCtx.height = ChartValue.BAR_HEIGHT * this._getTimeTotal().length;
-    this._moneyChart = this._printMoneyChart(moneyCtx, this._getMoneyTotal());
-    this._transportChart = this._printTransportChart(transportCtx, this._getTransportTotal());
-    this._timeSpendChart = this._printTimeChart(timeSpendCtx, this._getTimeTotal());
+    const moneyCtxElement = element.querySelector(`.statistics__chart--money`);
+    const transportCtxElement = element.querySelector(`.statistics__chart--transport`);
+    const timeSpendCtxElement = element.querySelector(`.statistics__chart--time`);
+    moneyCtxElement.height = ChartValue.BAR_HEIGHT * this._getMoneyTotal().length;
+    transportCtxElement.height = ChartValue.BAR_HEIGHT * this._getTransportTotal().length;
+    timeSpendCtxElement.height = ChartValue.BAR_HEIGHT * this._getTimeTotal().length;
+    this._moneyChart = this._printMoneyChart(moneyCtxElement, this._getMoneyTotal());
+    this._transportChart = this._printTransportChart(transportCtxElement, this._getTransportTotal());
+    this._timeSpendChart = this._printTimeChart(timeSpendCtxElement, this._getTimeTotal());
     return element;
   }
 

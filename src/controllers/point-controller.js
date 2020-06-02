@@ -31,7 +31,7 @@ export default class PointController {
     this._pointEdit = null;
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
-    this._onEscKeyDown = this._onEscKeyDown.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._mode = Mode.DEFAULT;
     this._pointsModel = pointsModel;
   }
@@ -53,7 +53,7 @@ export default class PointController {
 
     this._tripPoint.setClickHandler(() => {
       this._replacePointToEdit();
-      document.addEventListener(`keydown`, this._onEscKeyDown);
+      document.addEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     this._pointEdit.setSaveButtonHandler((evt) => {
@@ -68,7 +68,7 @@ export default class PointController {
       newPoint.id = this._pointEdit.getId();
       this._onDataChange(this, point, newPoint);
 
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     this._pointEdit.setFavoriteButtonClickHandler(() => {
@@ -103,7 +103,7 @@ export default class PointController {
           remove(oldPointComponent);
           remove(oldPointEditComponent);
         }
-        document.addEventListener(`keydown`, this._onEscKeyDown);
+        document.addEventListener(`keydown`, this._escKeyDownHandler);
         render(this._container, this._pointEdit, RenderPosition.AFTERBEGIN);
         break;
     }
@@ -130,7 +130,7 @@ export default class PointController {
   destroy() {
     remove(this._pointEdit);
     remove(this._tripPoint);
-    document.removeEventListener(`keydown`, this._onEscKeyDown);
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   _parseFormData(formData, allOffers, allDestinations) {
@@ -164,18 +164,18 @@ export default class PointController {
     if (this._mode !== Mode.ADDING) {
       this._pointEdit.reset();
     }
-    document.removeEventListener(`keydown`, this._onEscKeyDown);
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
     replace(this._tripPoint, this._pointEdit);
     this._mode = Mode.DEFAULT;
   }
 
-  _onEscKeyDown(evt) {
+  _escKeyDownHandler(evt) {
     if (evt.key === Key.ESC) {
       if (this._mode === Mode.ADDING) {
         this._onDataChange(this, EmptyPoint, null);
       }
       this._replaceEditToPoint();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
   }
 }
