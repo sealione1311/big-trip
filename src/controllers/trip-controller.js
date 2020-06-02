@@ -111,7 +111,6 @@ export default class TripController {
       this._creatingPoint = null;
       if (newData === null) {
         pointController.destroy();
-
         this._updatePoints();
         newPointButtonElement.removeAttribute(`disabled`);
 
@@ -121,14 +120,12 @@ export default class TripController {
             this._pointsModel.addPoint(newPoint);
             pointController.render(newPoint, PointControllerMode.ADDING);
             this._observer = [].concat(pointController, this._observer);
-
             this._updatePoints();
             newPointButtonElement.removeAttribute(`disabled`);
-
           })
           .catch(() => {
-            pointController.shake();
             pointController.activateForm();
+            pointController.shake();
           });
       }
     } else if (newData === null) {
@@ -138,8 +135,8 @@ export default class TripController {
           this._updatePoints();
         })
         .catch(() => {
-          pointController.shake();
           pointController.activateForm();
+          pointController.shake();
         });
     } else {
 
@@ -155,8 +152,9 @@ export default class TripController {
           }
         })
         .catch(() => {
-          pointController.shake();
           pointController.activateForm();
+          pointController.shake();
+
         });
     }
   }
