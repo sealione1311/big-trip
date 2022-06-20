@@ -10,7 +10,7 @@ import {render, RenderPosition, remove} from "./utils/dom-utils.js";
 import {MenuItem} from "./utils/const.js";
 
 const AUTHORIZATION = `Basic wmlafpoRyDLjuhtGkgL`;
-const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
+const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const mainElement = document.querySelector(`.trip-main`);
 const filterElement = mainElement.querySelector(`.trip-controls`);
